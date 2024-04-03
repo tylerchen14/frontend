@@ -124,7 +124,7 @@ export default function Streaming() {
   // 留言功能
   const [comment, setComment] = useState([{
     name: "陳泰勒",
-    profile: "/face-id.png",
+    profile: "/images/face-id.png",
     comment: "測試文字",
   }])
 
@@ -150,7 +150,6 @@ export default function Streaming() {
           profile: "/face-id.png",
           comment: inputComment,
         }
-
         socket.emit('sendComment', newComment)
         e.target.value = ""
       }
