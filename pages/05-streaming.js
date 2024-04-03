@@ -147,7 +147,7 @@ export default function Streaming() {
       if (inputComment !== "") {
         const newComment = {
           name: "陳泰勒",
-          profile: "/face-id.png",
+          profile: "/images/face-id.png",
           comment: inputComment,
         }
         socket.emit('sendComment', newComment)
