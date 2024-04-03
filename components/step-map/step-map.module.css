@@ -1,0 +1,56 @@
+.changeUrl {
+  display: flex;
+  gap: 120px;
+  align-items: center;
+}
+
+.next-step {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.next-step:hover {
+  font-size: 30px;
+  transition: 0.3s ease;
+}
+
+.prev-step {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.prev-step:hover {
+  font-size: 30px;
+  transition: 0.3s ease;
+}
+
+@media (max-width: 768px) {
+
+  .next-step {
+    font-size: 14px;
+  }
+
+  .next-step:hover {
+    font-size: 20px;
+  }
+
+  .prev-step {
+    font-size: 14px;
+  }
+
+  .prev-step:hover {
+    font-size: 20px;
+  }
+
+  .changeUrl {
+    gap: 50px;
+    height: 10%;
+    margin-bottom: 10px;
+  }
+}
