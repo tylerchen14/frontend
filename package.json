@@ -10,11 +10,16 @@
   },
   "dependencies": {
     "@remixicon/react": "^4.2.0",
+    "ejs": "^3.1.9",
+    "expres": "^0.0.5",
+    "express": "^4.19.2",
     "next": "14.1.4",
+    "peer": "^1.0.2",
     "react": "^18",
     "react-dom": "^18",
     "remixicon": "^4.2.0",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.1",

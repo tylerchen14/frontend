@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
+
 // 連線後端socket
 import { io } from 'socket.io-client'
 const socket = io(`http://localhost:4020`, {
@@ -16,8 +17,6 @@ const socket = io(`http://localhost:4020`, {
 // FIXME: 手機版人員無法scroll
 
 export default function Streaming() {
-
-  const [show, setShow] = useState(false);
 
   const [onPhone, setOnPhone] = useState(false);
 
@@ -165,6 +164,50 @@ export default function Streaming() {
   //   setreplyTarget(target)
   // }
 
+  // 直播功能
+
+  const socket_stream = io('http://localhost:3030')
+  const { Peer } = require("peer");
+
+  const myPeer = Peer(undefined, {
+    host: "/05-streaming/",
+    port: "3031",
+  });
+
+  const myVid = document.createElement('video');
+  myVid.muted = true;
+
+  const room = window.location.pathname.split('/')[1];
+
+  myPeer.on('open', id => {
+    socket_stream.emit('join-room', room, id)
+  })
+
+  navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true,
+  }).then(stream => {
+    addStream(myVid, stream)
+
+    myPeer.on('call', call => {
+      call.answer(stream)
+      const video = document.createElement('video')
+      call.on('stream', userStream => {
+        addStream(video, userStream)
+      })
+    })
+  })
+
+  const addStream = (video, stream) => {
+    video.srcObject = stream;
+    video.addEventListener('loadedmetadata', () => {
+      video.play()
+    })
+    const streamBlock = document.querySelector('#stream-block')
+    streamBlock.append(video)
+  }
+
+
   return (
     <>
 
@@ -272,7 +315,8 @@ export default function Streaming() {
           </div>
 
           {/* 直播框 */}
-          <div className={styles['streaming-content']}></div>
+          <div className={`${styles['streaming-content']} stream-block`}>
+          </div>
 
           {/* 禮物框 */}
           <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} `}>
