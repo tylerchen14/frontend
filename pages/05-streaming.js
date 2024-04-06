@@ -216,6 +216,51 @@ export default function Streaming() {
     setreplyTarget("")
   }
 
+  const [blockComment, setBlockComment] = useState(true)
+  const [blockWord, setBlockWord] = useState([])
+
+  const handleBlockComment = () => {
+    setBlockComment(!blockComment)
+  }
+
+
+  const handleBlockWord = (e) => {
+    setBlockWord(e.target.value.split(","))
+    console.log(blockWord);
+  }
+
+  useEffect(() => {
+    const updatedComments = comment.map(c => {
+      let updatedComment = c.comment;
+      blockWord.forEach(word => {
+        if (updatedComment.includes(word)) {
+          updatedComment = updatedComment.replace(word, "***");
+        }
+      });
+      return { ...c, comment: updatedComment };
+    });
+    setComment(updatedComments);
+  }, [blockWord]);
+
+
+  const [pin, setPin] = useState(false)
+  const [pinnedComment, setPinnedComment] = useState("")
+  const [pinnedProfile, setPinnedProfile] = useState("")
+  const [pinnedName, setPinnedName] = useState("")
+
+  const handlePin = (pinP, pinN, pinC) => {
+    setPin(!pin)
+    setPinnedComment(pinC)
+    setPinnedName(pinN)
+    setPinnedProfile(pinP)
+  }
+
+  const handleUnpin = () => {
+    setPin(false)
+  }
+
+
+
   return (
     <>
 
@@ -360,9 +405,18 @@ export default function Streaming() {
                       className={styles.icon_reply}
                       onClick={handleClickIcon}
                     />
+                    <div onClick={() => { handlePin(c.profile, c.name, c.comment) }}>0</div>
                     <div>{c.reply}</div>
                   </div>)
               })}
+            </div>
+
+
+            <div className={`flex gap-1.5 items-start mb-2 ${pin ? "" : "hidden"}`}>
+              <Image width={30} height={30} alt='大頭貼' src={pinnedProfile} className='bg-white rounded-full p-1' />
+              <div className='w-2/12 shrink-0'>{pinnedName}</div>
+              <div className='w-7/12 break-words'>{pinnedComment}</div>
+              <button onClick={handleUnpin}>x</button>
             </div>
 
             <hr className={"border-dotted mb-1"} />
@@ -375,7 +429,7 @@ export default function Streaming() {
 
             {/* 留言框 */}
             <div className={styles['comment-bar']}>
-              <input type="text" placeholder='輸入內容' className='w-full p-1 pl-2 rounded text-black flex flex-wrap'
+              <input type="text" placeholder='輸入內容' className='w-full p-1 pl-2 rounded text-black'
                 onKeyDown={handleKeyDown}
                 maxLength={100}
               />
@@ -396,11 +450,13 @@ export default function Streaming() {
                   onClick={handleShowMemberlist}
                 ></RiUserFill>
                 <RiStoreLine className={styles.iconstore}></RiStoreLine>
+                <div id='block' onClick={handleBlockComment}>x</div>
+                <input type="text" id='block' className={`${blockComment ? "hidden" : ""} text-black`} value={blockWord} onChange={handleBlockWord} maxLength={20} />
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </div >
     </>
   )
 }
