@@ -182,12 +182,15 @@
   width: 1px;
 }
 
+.chat-name {
+  flex-shrink: 0;
+}
+
 .comment-chat {
   display: flex;
-  flex-direction: row;
   gap: 6px;
-  flex-wrap: wrap;
   margin-bottom: 6px;
+  flex-wrap: wrap;
 }
 
 .comment-bar {
@@ -215,6 +218,7 @@
   right: 10px;
   top: 10px;
   font-size: 16px;
+  z-index: 99;
 }
 
 .hidden_left {
@@ -261,6 +265,7 @@
 }
 
 .icon_reply {
+  margin-top: 6px;
   height: 16px;
   /* outline: 1px solid white; */
 }
@@ -354,6 +359,13 @@
   .member-list {
     z-index: 500;
     overflow-y: auto;
+    height: 250px;
+  }
+
+  .streaming-content {
+    /* outline: 1px solid white; */
+    height: 30%;
+    aspect-ratio: 16/9;
   }
 
 }

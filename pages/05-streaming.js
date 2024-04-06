@@ -70,7 +70,7 @@ export default function Streaming() {
     return (
       <div className={styles['comment-chat']} >
         <div className={styles['chat-circle']}></div>
-        <span>五條物</span>
+        <span className={styles['chat-name']}>五條物</span>
         <span>他的聊天紀錄他的聊天紀錄他的聊天紀錄他的聊天紀錄</span>
       </div>
     )
@@ -315,7 +315,7 @@ export default function Streaming() {
           </div>
 
           {/* 直播框 */}
-          <div className={`${styles['streaming-content']} stream-block`}>
+          <div className={styles['streaming-content']}>
           </div>
 
           {/* 禮物框 */}
@@ -341,13 +341,13 @@ export default function Streaming() {
             </>}
 
             {/* 聊天內容 */}
-            <div className={styles['chat']}>
+            <div className={`${styles['chat']} `}>
               {comment.map((c, i) => {
                 return (
-                  <div key={i} className='flex gacp-2 items-center'>
-                    <Image width={16} height={16} src={c.profile} />
-                    <div>{c.name}</div>
-                    <div>{c.comment}</div>
+                  <div key={i} className='flex gap-1.5 items-start mb-2'>
+                    <Image width={30} height={30} src={c.profile} className='bg-white rounded-full p-1' />
+                    <div className='w-2/12 shrink-0'>{c.name}</div>
+                    <div className='w-7/12 break-words'>{c.comment}</div>
                     <RiReplyFill
                       className={styles.icon_reply}
                     // onClick={handleClickIcon}
