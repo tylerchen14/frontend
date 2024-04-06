@@ -4,7 +4,7 @@ import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-
+// import { Peer } from "peerjs";
 
 // 連線後端socket
 import { io } from 'socket.io-client'
@@ -120,6 +120,52 @@ export default function Streaming() {
     console.log(showMember);
   }
 
+
+
+  // 直播功能
+
+  // const socket_stream = io('http://localhost:3030');
+
+  //   const myPeer = Peer(undefined, {
+  //     host: "/05-streaming/",
+  //     port: "3031",
+  //   });
+
+  //   const myVid = document.createElement('video');
+  //   myVid.muted = true;
+
+  //   const room = window.location.pathname.split('/')[1];
+
+  //   myPeer.on('open', id => {
+  //     socket_stream.emit('join-room', room, id)
+  //   })
+
+  //   navigator.mediaDevices.getUserMedia({
+  //     video: true,
+  //     audio: true,
+  //   }).then(stream => {
+  //     addStream(myVid, stream)
+
+  //     myPeer.on('call', call => {
+  //       call.answer(stream)
+  //       const video = document.createElement('video')
+  //       call.on('stream', userStream => {
+  //         addStream(video, userStream)
+  //       })
+  //     })
+  //   })
+
+  //   const addStream = (video, stream) => {
+  //     video.srcObject = stream;
+  //     video.addEventListener('loadedmetadata', () => {
+  //       video.play()
+  //     })
+  //     const streamBlock = document.querySelector('#stream-block')
+  //     streamBlock.append(video)
+  //   }
+
+  const [replyTarget, setreplyTarget] = useState("")
+
   // 留言功能
   const [comment, setComment] = useState([{
     name: "陳泰勒",
@@ -132,7 +178,8 @@ export default function Streaming() {
       setComment(prevComment => [...prevComment, {
         name: receiveComment.name,
         profile: receiveComment.profile,
-        comment: receiveComment.comment
+        comment: receiveComment.comment,
+        reply: receiveComment.reply
       }])
     })
     return () => {
@@ -148,65 +195,26 @@ export default function Streaming() {
           name: "陳泰勒",
           profile: "/images/face-id.png",
           comment: inputComment,
+          reply: replyTarget,
         }
         socket.emit('sendComment', newComment)
         e.target.value = ""
       }
+      setreplyTarget("")
     }
   }
 
-  // FIXME:待製作
-  // const [reply, setReply] = useState("我回覆你囉")
-  // const [replyTarget, setreplyTarget] = useState("")
+  // 回覆功能
 
-  // const handleClickIcon = (e) => {
-  //   const target = e.target.previousElementSibling.textContent;
-  //   setreplyTarget(target)
-  // }
-
-  // 直播功能
-
-  const socket_stream = io('http://localhost:3030')
-  const { Peer } = require("peer");
-
-  const myPeer = Peer(undefined, {
-    host: "/05-streaming/",
-    port: "3031",
-  });
-
-  const myVid = document.createElement('video');
-  myVid.muted = true;
-
-  const room = window.location.pathname.split('/')[1];
-
-  myPeer.on('open', id => {
-    socket_stream.emit('join-room', room, id)
-  })
-
-  navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true,
-  }).then(stream => {
-    addStream(myVid, stream)
-
-    myPeer.on('call', call => {
-      call.answer(stream)
-      const video = document.createElement('video')
-      call.on('stream', userStream => {
-        addStream(video, userStream)
-      })
-    })
-  })
-
-  const addStream = (video, stream) => {
-    video.srcObject = stream;
-    video.addEventListener('loadedmetadata', () => {
-      video.play()
-    })
-    const streamBlock = document.querySelector('#stream-block')
-    streamBlock.append(video)
+  const handleClickIcon = (e) => {
+    const target = e.target.previousElementSibling?.textContent;
+    console.log(target);
+    setreplyTarget(target)
   }
 
+  const handleReply = () => {
+    setreplyTarget("")
+  }
 
   return (
     <>
@@ -345,25 +353,31 @@ export default function Streaming() {
               {comment.map((c, i) => {
                 return (
                   <div key={i} className='flex gap-1.5 items-start mb-2'>
-                    <Image width={30} height={30} src={c.profile} className='bg-white rounded-full p-1' />
+                    <Image width={30} height={30} alt='大頭貼' src={c.profile} className='bg-white rounded-full p-1' />
                     <div className='w-2/12 shrink-0'>{c.name}</div>
                     <div className='w-7/12 break-words'>{c.comment}</div>
                     <RiReplyFill
                       className={styles.icon_reply}
-                    // onClick={handleClickIcon}
+                      onClick={handleClickIcon}
                     />
+                    <div>{c.reply}</div>
                   </div>)
               })}
-              {/* <div className={styles.repliedTarget}>{replyTarget}</div> */}
             </div>
 
             <hr className={"border-dotted mb-1"} />
             <hr className={"border-dotted"} />
 
+            <div className='flex justify-between'>
+              <span className={styles.repliedTarget}>{replyTarget}</span>
+              <button className='mr-2' onClick={handleReply}>{replyTarget ? "x" : ""}</button>
+            </div>
+
             {/* 留言框 */}
             <div className={styles['comment-bar']}>
-              <input type="text" placeholder='輸入內容' className='w-full p-1 pl-2 rounded text-black'
+              <input type="text" placeholder='輸入內容' className='w-full p-1 pl-2 rounded text-black flex flex-wrap'
                 onKeyDown={handleKeyDown}
+                maxLength={100}
               />
 
               <button className={styles['sticker-comment']}>{onPhone ? <RiGift2Line
