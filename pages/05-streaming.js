@@ -4,21 +4,19 @@ import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Peer } from "peerjs";
-
-// 連線後端socket
+// import { Peer } from "peerjs";
 import { io } from 'socket.io-client'
-const socket = io(`http://localhost:3002`);
+
+const socket = io(`http://localhost:3001`);
 
 export default function Streaming() {
 
+  // 手機上顯示
   const [onPhone, setOnPhone] = useState(false);
-
   useEffect(() => {
     const sizeChange = () => {
       setOnPhone(window.innerWidth < 768)
     }
-
     sizeChange()
     window.addEventListener('resize', sizeChange)
   })
@@ -117,54 +115,52 @@ export default function Streaming() {
 
   // 直播功能
 
-  // const socket_stream = io('/05-streaming/');
+  // const myPeer = Peer(undefined, {
+  //   host: "/",
+  //   port: "3002",
+  // });
 
-  const myPeer = Peer(undefined, {
-    host: "/",
-    port: "3001",
-    path: "/05-streaming/"
-  });
+  // const myVid = document.createElement('video');
+  // myVid.muted = true;
 
-  const myVid = document.createElement('video');
-  myVid.muted = true;
+  // const room = window.location.pathname.split('/')[1];
 
-  const room = window.location.pathname.split('/')[1];
+  // myPeer.on('open', id => {
+  //   socket.emit('join-room', room, id)
+  //   console.log(room);
+  // })
 
-  myPeer.on('open', id => {
-    socket.emit('join-room', room, id)
-    console.log(room);
-  })
+  // useEffect(() => {
+  //   window.navigator.mediaDevices.getUserMedia({
+  //     video: true,
+  //     audio: true,
+  //   }).then(stream => {
+  //     addStream(myVid, stream)
 
-  useEffect(() => {
-    window.navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    }).then(stream => {
-      addStream(myVid, stream)
+  //     myPeer.on('call', call => {
+  //       call.answer(stream)
+  //       const video = document.createElement('video')
+  //       call.on('stream', userStream => {
+  //         addStream(video, userStream)
+  //       })
+  //     })
+  //   })
+  // }, [])
 
-      myPeer.on('call', call => {
-        call.answer(stream)
-        const video = document.createElement('video')
-        call.on('stream', userStream => {
-          addStream(video, userStream)
-        })
-      })
-    })
-  }, [])
-
-  const addStream = (video, stream) => {
-    video.srcObject = stream;
-    video.addEventListener('loadedmetadata', () => {
-      video.play()
-    })
-    const streamBlock = document.querySelector('#stream-block')
-    streamBlock.append(video)
-  }
-
-  const [replyTarget, setreplyTarget] = useState("")
+  // const addStream = (video, stream) => {
+  //   video.srcObject = stream;
+  //   video.addEventListener('loadedmetadata', () => {
+  //     video.play()
+  //   })
+  //   const streamBlock = document.querySelector('#stream-block')
+  //   streamBlock.append(video)
+  // }
 
   // 留言功能
+  const [replyTarget, setreplyTarget] = useState("")
+
   const [comment, setComment] = useState([{
+
     name: "陳泰勒",
     profile: "/images/face-id.png",
     comment: "測試文字",
@@ -200,6 +196,7 @@ export default function Streaming() {
       setreplyTarget("")
     }
   }
+  console.log(window);
 
   // 回覆功能
 
@@ -256,7 +253,32 @@ export default function Streaming() {
     setPin(false)
   }
 
+  // 點數功能
 
+  const [points, setPoints] = useState(0)
+  const [clickedIds, setClickedIds] = useState([])
+
+  useEffect(() => {
+    let p = 0
+    const getPoints = setInterval(() => {
+      const newComment = {
+        id: p++,
+        name: "系統",
+        profile: "/images/treasure.png",
+        comment: "點頭貼，領點數！",
+      }
+      socket.emit('sendComment', newComment)
+    }, 1000);
+
+    return () => clearInterval(getPoints)
+  }, [])
+
+  const handleGetPoints = (profile, id) => {
+    if (profile == "/images/treasure.png" && !clickedIds.includes(id)) {
+      setPoints(prevPoint => prevPoint + 100)
+      setClickedIds(prevIds => [...prevIds, id])
+    }
+  }
 
   return (
     <>
@@ -395,7 +417,9 @@ export default function Streaming() {
               {comment.map((c, i) => {
                 return (
                   <div key={i} className='flex gap-1.5 items-start mb-2'>
-                    <Image width={30} height={30} alt='大頭貼' src={c.profile} className='bg-white rounded-full p-1' />
+                    <Image width={30} height={30} alt='大頭貼' src={c.profile}
+                      onClick={() => handleGetPoints(c.profile, c.id)}
+                      className='bg-white rounded-full p-1' />
                     <div className='w-2/12 shrink-0'>{c.name}</div>
                     <div className='w-7/12 break-words'>{c.comment}</div>
                     <RiReplyFill
@@ -440,7 +464,7 @@ export default function Streaming() {
             <div className={styles['chat-bottom']}>
               <div className='flex '>
                 <RiMoneyDollarCircleFill></RiMoneyDollarCircleFill>
-                <div>123 pts</div>
+                <div>{points} pts</div>
               </div>
               <div className='flex gap-2'>
                 <RiUserFill className={styles.iconstore}
