@@ -4,17 +4,11 @@ import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-// import { Peer } from "peerjs";
+import { Peer } from "peerjs";
 
 // 連線後端socket
 import { io } from 'socket.io-client'
-const socket = io(`http://localhost:4020`, {
-  auth: { token: "tyler" }
-});
-
-// FIXME: 留言需要與暱稱同一條線
-// FIXME: 縮小後框變很擠
-// FIXME: 手機版人員無法scroll
+const socket = io(`http://localhost:3002`);
 
 export default function Streaming() {
 
@@ -121,48 +115,51 @@ export default function Streaming() {
   }
 
 
-
   // 直播功能
 
-  // const socket_stream = io('http://localhost:3030');
+  // const socket_stream = io('/05-streaming/');
 
-  //   const myPeer = Peer(undefined, {
-  //     host: "/05-streaming/",
-  //     port: "3031",
-  //   });
+  const myPeer = Peer(undefined, {
+    host: "/",
+    port: "3001",
+    path: "/05-streaming/"
+  });
 
-  //   const myVid = document.createElement('video');
-  //   myVid.muted = true;
+  const myVid = document.createElement('video');
+  myVid.muted = true;
 
-  //   const room = window.location.pathname.split('/')[1];
+  const room = window.location.pathname.split('/')[1];
 
-  //   myPeer.on('open', id => {
-  //     socket_stream.emit('join-room', room, id)
-  //   })
+  myPeer.on('open', id => {
+    socket.emit('join-room', room, id)
+    console.log(room);
+  })
 
-  //   navigator.mediaDevices.getUserMedia({
-  //     video: true,
-  //     audio: true,
-  //   }).then(stream => {
-  //     addStream(myVid, stream)
+  useEffect(() => {
+    window.navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    }).then(stream => {
+      addStream(myVid, stream)
 
-  //     myPeer.on('call', call => {
-  //       call.answer(stream)
-  //       const video = document.createElement('video')
-  //       call.on('stream', userStream => {
-  //         addStream(video, userStream)
-  //       })
-  //     })
-  //   })
+      myPeer.on('call', call => {
+        call.answer(stream)
+        const video = document.createElement('video')
+        call.on('stream', userStream => {
+          addStream(video, userStream)
+        })
+      })
+    })
+  }, [])
 
-  //   const addStream = (video, stream) => {
-  //     video.srcObject = stream;
-  //     video.addEventListener('loadedmetadata', () => {
-  //       video.play()
-  //     })
-  //     const streamBlock = document.querySelector('#stream-block')
-  //     streamBlock.append(video)
-  //   }
+  const addStream = (video, stream) => {
+    video.srcObject = stream;
+    video.addEventListener('loadedmetadata', () => {
+      video.play()
+    })
+    const streamBlock = document.querySelector('#stream-block')
+    streamBlock.append(video)
+  }
 
   const [replyTarget, setreplyTarget] = useState("")
 
