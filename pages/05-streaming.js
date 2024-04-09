@@ -4,10 +4,15 @@ import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Peer } from "peerjs";
-import { io } from 'socket.io-client'
 
-const socket = io(`http://localhost:3001`);
+import { io } from 'socket.io-client'
+import dynamic from 'next/dynamic'
+
+const StreamContent = dynamic(() => import('@/components/stream/stream'), {
+  ssr: false,
+})
+
+const socket = io(`http://localhost:3003`);
 
 export default function Streaming() {
 
@@ -159,144 +164,6 @@ export default function Streaming() {
     setShowMember(!showMember)
     console.log(showMember);
   }
-
-  // 直播功能2
-
-  // const [peerId, setPeerId] = useState(null);
-  // const remoteVideoRef = useRef(null)
-  // const peerInstance = useRef(null)
-  // const currentUserVideoRef = useRef(null)
-
-  // useEffect(() => {
-  //   const peer = new Peer()
-
-  //   peer.on('open', id => {
-  //     setPeerId(id)
-  //   })
-
-  //   peer.on('call', (call) => {
-  //     let getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-
-  //     getUserMedia({ video: true, audio: true }, (mediaStream) => {
-  //       currentUserVideoRef.current.srcObject = mediaStream
-  //       currentUserVideoRef.current.play()
-  //       call.answer(mediaStream)
-  //       call.on('stream', function (remoteStream) {
-  //         remoteVideoRef.current.srcObject = remoteStream
-  //         remoteVideoRef.current.play()
-  //       });
-  //     });
-  //   })
-  //   peerInstance.current = peer
-  // }, [])
-
-  // const call = (remotePeerId) => {
-  //   let getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-
-  //   getUserMedia({ video: true, audio: true }, (mediaStream) => {
-  //     currentUserVideoRef.current.srcObject = mediaStream
-  //     currentUserVideoRef.current.play()
-  //     let call = peerInstance.current.call(remotePeerId, mediaStream);
-
-  //     call.on('stream', function (remoteStream) {
-  //       remoteVideoRef.current.srcObject = remoteStream
-  //       remoteVideoRef.current.play()
-  //     });
-  //   });
-  // }
-
-
-  // 直播功能
-
-  const myPeer = new Peer(undefined, {
-    host: "/",
-    port: "3002",
-  });
-
-  const streamBlock = useRef(null)
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const room = window.location.pathname.split('/')[1];
-      const myVid = document.createElement('video');
-      myVid.muted = true;
-
-      myPeer.on('open', id => {
-        socket.emit('join-room', room, id)
-        console.log(room);
-      })
-
-      navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      }).then(stream => {
-        addStream(myVid, stream)
-
-        myPeer.on('call', call => {
-          call.answer(stream)
-          const video = document.createElement('video')
-          call.on('stream', userStream => {
-            addStream(video, userStream)
-          })
-        })
-      })
-    }
-  })
-
-  const addStream = (video, stream) => {
-    video.srcObject = stream;
-    video.addEventListener('loadedmetadata', () => {
-      video.play()
-    })
-    streamBlock.current.append(video)
-  }
-
-  // 放在useEffect中
-  // const streamComponent = () => {
-  //   useEffect(() => {
-  //     const streaming = () => {
-  //       const myPeer = new Peer(undefined, {
-  //         host: "/",
-  //         port: "3002",
-  //       });
-
-  //       const myVid = document.createElement('video');
-  //       myVid.muted = true;
-
-  //       const room = window.location.pathname.split('/')[1];
-
-  //       myPeer.on('open', id => {
-  //         socket.emit('join-room', room, id)
-  //         console.log(room);
-  //       })
-
-  //       navigator.mediaDevices.getUserMedia({
-  //         video: true,
-  //         audio: true,
-  //       }).then(stream => {
-  //         addStream(myVid, stream)
-
-  //         myPeer.on('call', call => {
-  //           call.answer(stream)
-  //           const video = document.createElement('video')
-  //           call.on('stream', userStream => {
-  //             addStream(video, userStream)
-  //           })
-  //         })
-  //       })
-
-  //       const addStream = (video, stream) => {
-  //         video.srcObject = stream;
-  //         video.addEventListener('loadedmetadata', () => {
-  //           video.play()
-  //         })
-  //         const streamBlock = document.querySelector('#stream-block')
-  //         streamBlock.append(video)
-  //       }
-  //     }
-  //   })
-  //   streaming()
-  // }
 
   // 留言功能
   const [replyTarget, setreplyTarget] = useState("")
@@ -528,10 +395,7 @@ export default function Streaming() {
           </div>
 
           {/* 直播框 */}
-          <div className={styles['streaming-content']} useRef={streamBlock}>
-            {/* <video ref={remoteVideoRef}></video>
-            <video ref={currentUserVideoRef}></video> */}
-          </div>
+          <StreamContent></StreamContent>
 
           {/* 禮物框 */}
           <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} `}>
