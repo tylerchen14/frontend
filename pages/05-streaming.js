@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import styles from '../styles/streaming.module.css'
 import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, RiStoreLine, RiDonutChartFill, RiArrowLeftSLine, RiGift2Line, RiUserFill, RiArrowDownSLine, RiArrowUpSLine, RiCornerUpLeftFill, RiReplyFill } from "@remixicon/react";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-// import { Peer } from "peerjs";
+import { Peer } from "peerjs";
 import { io } from 'socket.io-client'
 
 const socket = io(`http://localhost:3001`);
@@ -46,16 +46,64 @@ export default function Streaming() {
     )
   }
 
+  // const giftList = () => {
+
+  //   const contents = [
+  //     {
+  //       name: "鑿子",
+  //       src: "@/public/images/axe.png",
+  //     }, {
+  //       name: "便當",
+  //       src: "@/public/images/bento.png",
+  //     }, {
+  //       name: "手電筒",
+  //       src: "@/public/images/flashlight.png",
+  //     }, {
+  //       name: "鬼魂",
+  //       src: "@/public/images/ghost.png",
+  //     }, {
+  //       name: "繩索",
+  //       src: "@/public/images/lasso.png",
+  //     }, {
+  //       name: "開鎖",
+  //       src: "@/public/images/bento.png",
+  //     }, {
+  //       name: "石塊",
+  //       src: "@/public/images/stone.png",
+  //     }, {
+  //       name: "寶藏",
+  //       src: "@/public/images/treasure-chest.png",
+  //     }, {
+  //       name: "水",
+  //       src: "@/public/images/water.png",
+  //     },
+  //   ]
+
+  //   return contents
+  // }
+
+
+  // const Gift = ({ name, src }) => {
+  //   return (
+  //     <>
+  //       <div className={styles['gift']}>
+  //         <img src={src} className={styles['circle']} alt={name}></img>
+  //         <div>{name}</div>
+  //       </div>
+  //     </>
+  //   )
+  // }
+
   const Gift = () => {
     return (
-      <>
-        <div className={styles['gift']}>
-          <div className={styles['circle']}></div>
-          <div>煙火</div>
-        </div>
-      </>
+      <div className={styles['gift']}>
+        <div className={styles['circle']} ></div>
+        <div>水壺</div>
+      </div>
     )
   }
+
+  // const contents = giftList();
 
   // 留言
   const Comment = () => {
@@ -112,48 +160,142 @@ export default function Streaming() {
     console.log(showMember);
   }
 
+  // 直播功能2
+
+  // const [peerId, setPeerId] = useState(null);
+  // const remoteVideoRef = useRef(null)
+  // const peerInstance = useRef(null)
+  // const currentUserVideoRef = useRef(null)
+
+  // useEffect(() => {
+  //   const peer = new Peer()
+
+  //   peer.on('open', id => {
+  //     setPeerId(id)
+  //   })
+
+  //   peer.on('call', (call) => {
+  //     let getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+  //     getUserMedia({ video: true, audio: true }, (mediaStream) => {
+  //       currentUserVideoRef.current.srcObject = mediaStream
+  //       currentUserVideoRef.current.play()
+  //       call.answer(mediaStream)
+  //       call.on('stream', function (remoteStream) {
+  //         remoteVideoRef.current.srcObject = remoteStream
+  //         remoteVideoRef.current.play()
+  //       });
+  //     });
+  //   })
+  //   peerInstance.current = peer
+  // }, [])
+
+  // const call = (remotePeerId) => {
+  //   let getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+  //   getUserMedia({ video: true, audio: true }, (mediaStream) => {
+  //     currentUserVideoRef.current.srcObject = mediaStream
+  //     currentUserVideoRef.current.play()
+  //     let call = peerInstance.current.call(remotePeerId, mediaStream);
+
+  //     call.on('stream', function (remoteStream) {
+  //       remoteVideoRef.current.srcObject = remoteStream
+  //       remoteVideoRef.current.play()
+  //     });
+  //   });
+  // }
+
 
   // 直播功能
 
-  // const myPeer = Peer(undefined, {
-  //   host: "/",
-  //   port: "3002",
-  // });
+  const myPeer = new Peer(undefined, {
+    host: "/",
+    port: "3002",
+  });
 
-  // const myVid = document.createElement('video');
-  // myVid.muted = true;
+  const streamBlock = useRef(null)
 
-  // const room = window.location.pathname.split('/')[1];
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const room = window.location.pathname.split('/')[1];
+      const myVid = document.createElement('video');
+      myVid.muted = true;
 
-  // myPeer.on('open', id => {
-  //   socket.emit('join-room', room, id)
-  //   console.log(room);
-  // })
+      myPeer.on('open', id => {
+        socket.emit('join-room', room, id)
+        console.log(room);
+      })
 
-  // useEffect(() => {
-  //   window.navigator.mediaDevices.getUserMedia({
-  //     video: true,
-  //     audio: true,
-  //   }).then(stream => {
-  //     addStream(myVid, stream)
+      navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      }).then(stream => {
+        addStream(myVid, stream)
 
-  //     myPeer.on('call', call => {
-  //       call.answer(stream)
-  //       const video = document.createElement('video')
-  //       call.on('stream', userStream => {
-  //         addStream(video, userStream)
+        myPeer.on('call', call => {
+          call.answer(stream)
+          const video = document.createElement('video')
+          call.on('stream', userStream => {
+            addStream(video, userStream)
+          })
+        })
+      })
+    }
+  })
+
+  const addStream = (video, stream) => {
+    video.srcObject = stream;
+    video.addEventListener('loadedmetadata', () => {
+      video.play()
+    })
+    streamBlock.current.append(video)
+  }
+
+  // 放在useEffect中
+  // const streamComponent = () => {
+  //   useEffect(() => {
+  //     const streaming = () => {
+  //       const myPeer = new Peer(undefined, {
+  //         host: "/",
+  //         port: "3002",
+  //       });
+
+  //       const myVid = document.createElement('video');
+  //       myVid.muted = true;
+
+  //       const room = window.location.pathname.split('/')[1];
+
+  //       myPeer.on('open', id => {
+  //         socket.emit('join-room', room, id)
+  //         console.log(room);
   //       })
-  //     })
-  //   })
-  // }, [])
 
-  // const addStream = (video, stream) => {
-  //   video.srcObject = stream;
-  //   video.addEventListener('loadedmetadata', () => {
-  //     video.play()
+  //       navigator.mediaDevices.getUserMedia({
+  //         video: true,
+  //         audio: true,
+  //       }).then(stream => {
+  //         addStream(myVid, stream)
+
+  //         myPeer.on('call', call => {
+  //           call.answer(stream)
+  //           const video = document.createElement('video')
+  //           call.on('stream', userStream => {
+  //             addStream(video, userStream)
+  //           })
+  //         })
+  //       })
+
+  //       const addStream = (video, stream) => {
+  //         video.srcObject = stream;
+  //         video.addEventListener('loadedmetadata', () => {
+  //           video.play()
+  //         })
+  //         const streamBlock = document.querySelector('#stream-block')
+  //         streamBlock.append(video)
+  //       }
+  //     }
   //   })
-  //   const streamBlock = document.querySelector('#stream-block')
-  //   streamBlock.append(video)
+  //   streaming()
   // }
 
   // 留言功能
@@ -196,7 +338,6 @@ export default function Streaming() {
       setreplyTarget("")
     }
   }
-  console.log(window);
 
   // 回覆功能
 
@@ -387,11 +528,17 @@ export default function Streaming() {
           </div>
 
           {/* 直播框 */}
-          <div className={styles['streaming-content']}>
+          <div className={styles['streaming-content']} useRef={streamBlock}>
+            {/* <video ref={remoteVideoRef}></video>
+            <video ref={currentUserVideoRef}></video> */}
           </div>
 
           {/* 禮物框 */}
           <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} `}>
+            {/* {contents.map((c, i) => {
+              <Gift key={i} name={c.name} src={c.src}></Gift>
+            })}*/}
+
             <Gift></Gift>
             <Gift></Gift>
             <Gift></Gift>
@@ -477,7 +624,7 @@ export default function Streaming() {
             </div>
           </div>
         </div>
-      </div >
+      </div>
     </>
   )
 }
