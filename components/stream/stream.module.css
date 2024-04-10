@@ -4,3 +4,14 @@
   width: 100%;
   height: 80%;
 }
+
+/* RWD */
+@media (max-width: 768px) {
+
+  .streaming-content {
+    /* outline: 1px solid white; */
+    height: 30%;
+    aspect-ratio: 16/9;
+  }
+
+}

@@ -1,27 +1,31 @@
-import React, { useRef } from 'react'
-import styles from '../styles/streaming.module.css'
-import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, RiStoreLine, RiDonutChartFill, RiArrowLeftSLine, RiGift2Line, RiUserFill, RiArrowDownSLine, RiArrowUpSLine, RiCornerUpLeftFill, RiReplyFill } from "@remixicon/react";
+import React from 'react'
+import styles from '@/styles/streaming.module.css'
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import GiftIcon from '@/components/gift-icon/giftIcon';
+import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, RiStoreLine, RiDonutChartFill, RiArrowLeftSLine, RiGift2Line, RiUserFill, RiArrowDownSLine, RiArrowUpSLine, RiCornerUpLeftFill, RiReplyFill } from "@remixicon/react";
 
-import { io } from 'socket.io-client'
+// 去除 server-side rendering
 import dynamic from 'next/dynamic'
-
 const StreamContent = dynamic(() => import('@/components/stream/stream'), {
   ssr: false,
 })
 
-const socket = io(`http://localhost:3003`);
+// 導入socket.io-client
+import { io } from 'socket.io-client'
+const socket = io(`http://localhost:3001`);
 
 export default function Streaming() {
 
   // 手機上顯示
   const [onPhone, setOnPhone] = useState(false);
+
   useEffect(() => {
     const sizeChange = () => {
       setOnPhone(window.innerWidth < 768)
     }
+
     sizeChange()
     window.addEventListener('resize', sizeChange)
   })
@@ -50,65 +54,6 @@ export default function Streaming() {
       </>
     )
   }
-
-  // const giftList = () => {
-
-  //   const contents = [
-  //     {
-  //       name: "鑿子",
-  //       src: "@/public/images/axe.png",
-  //     }, {
-  //       name: "便當",
-  //       src: "@/public/images/bento.png",
-  //     }, {
-  //       name: "手電筒",
-  //       src: "@/public/images/flashlight.png",
-  //     }, {
-  //       name: "鬼魂",
-  //       src: "@/public/images/ghost.png",
-  //     }, {
-  //       name: "繩索",
-  //       src: "@/public/images/lasso.png",
-  //     }, {
-  //       name: "開鎖",
-  //       src: "@/public/images/bento.png",
-  //     }, {
-  //       name: "石塊",
-  //       src: "@/public/images/stone.png",
-  //     }, {
-  //       name: "寶藏",
-  //       src: "@/public/images/treasure-chest.png",
-  //     }, {
-  //       name: "水",
-  //       src: "@/public/images/water.png",
-  //     },
-  //   ]
-
-  //   return contents
-  // }
-
-
-  // const Gift = ({ name, src }) => {
-  //   return (
-  //     <>
-  //       <div className={styles['gift']}>
-  //         <img src={src} className={styles['circle']} alt={name}></img>
-  //         <div>{name}</div>
-  //       </div>
-  //     </>
-  //   )
-  // }
-
-  const Gift = () => {
-    return (
-      <div className={styles['gift']}>
-        <div className={styles['circle']} ></div>
-        <div>水壺</div>
-      </div>
-    )
-  }
-
-  // const contents = giftList();
 
   // 留言
   const Comment = () => {
@@ -169,7 +114,6 @@ export default function Streaming() {
   const [replyTarget, setreplyTarget] = useState("")
 
   const [comment, setComment] = useState([{
-
     name: "陳泰勒",
     profile: "/images/face-id.png",
     comment: "測試文字",
@@ -224,7 +168,6 @@ export default function Streaming() {
   const handleBlockComment = () => {
     setBlockComment(!blockComment)
   }
-
 
   const handleBlockWord = (e) => {
     setBlockWord(e.target.value.split(","))
@@ -395,24 +338,10 @@ export default function Streaming() {
           </div>
 
           {/* 直播框 */}
-          <StreamContent></StreamContent>
+          {/* <StreamContent></StreamContent> */}
 
           {/* 禮物框 */}
-          <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} `}>
-            {/* {contents.map((c, i) => {
-              <Gift key={i} name={c.name} src={c.src}></Gift>
-            })}*/}
-
-            <Gift></Gift>
-            <Gift></Gift>
-            <Gift></Gift>
-            <Gift></Gift>
-            <Gift></Gift>
-            <Gift></Gift>
-            <Gift></Gift>
-            <Gift></Gift>
-            <Gift></Gift>
-          </div>
+          <GiftIcon></GiftIcon>
         </div>
 
         {/* 右欄 */}
@@ -443,7 +372,7 @@ export default function Streaming() {
               })}
             </div>
 
-
+            {/* 置頂文字 */}
             <div className={`flex gap-1.5 items-start mb-2 ${pin ? "" : "hidden"}`}>
               <Image width={30} height={30} alt='大頭貼' src={pinnedProfile} className='bg-white rounded-full p-1' />
               <div className='w-2/12 shrink-0'>{pinnedName}</div>
@@ -459,7 +388,7 @@ export default function Streaming() {
               <button className='mr-2' onClick={handleReply}>{replyTarget ? "x" : ""}</button>
             </div>
 
-            {/* 留言框 */}
+            {/* 發訊息 */}
             <div className={styles['comment-bar']}>
               <input type="text" placeholder='輸入內容' className='w-full p-1 pl-2 rounded text-black'
                 onKeyDown={handleKeyDown}

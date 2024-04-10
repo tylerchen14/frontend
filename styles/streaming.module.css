@@ -30,10 +30,6 @@
   /* outline: 1px white solid; */
 }
 
-.member-list {
-  overflow-y: auto;
-}
-
 .search-field {
   border-radius: 12px;
   background: #FFF;
@@ -48,6 +44,10 @@
   position: absolute;
   top: 15%;
   right: 2%;
+}
+
+.member-list {
+  overflow-y: auto;
 }
 
 .member-container {
@@ -106,31 +106,7 @@
   object-fit: cover;
 }
 
-.gift-bar {
-  gap: 32px;
-  width: 98%;
-  border-radius: 8px;
-  background: rgba(87, 87, 87, 0.27);
-  backdrop-filter: blur(2px);
-  padding: 5px 8px;
-  display: flex;
-  justify-content: center;
-  color: black;
-  /* outline: 1px solid white; */
-}
 
-.gift {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-}
-
-.circle {
-  padding: 32px;
-  background: #D9D9D9;
-  border-radius: 50%;
-}
 
 /* 右側 */
 .chatbar {
@@ -274,6 +250,7 @@
   width: 100%;
 }
 
+/* 開始 */
 @media (max-width: 768px) {
 
   .mainframe {
@@ -302,24 +279,6 @@
   .chat {
     /* outline: 1px solid white; */
     margin-top: 0;
-  }
-
-  .gift-bar {
-    overflow-x: auto;
-    gap: 15px;
-    position: absolute;
-    bottom: 11%;
-    z-index: 10;
-    color: white;
-    backdrop-filter: blur(6px);
-  }
-
-  .gift {
-    font-size: 14px;
-  }
-
-  .circle {
-    padding: 20px;
   }
 
   .sidebar {
@@ -357,12 +316,6 @@
     z-index: 500;
     overflow-y: auto;
     height: 250px;
-  }
-
-  .streaming-content {
-    /* outline: 1px solid white; */
-    height: 30%;
-    aspect-ratio: 16/9;
   }
 
 }

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { RiCheckboxFill } from "@remixicon/react";
 import { RiCloseLine } from "@remixicon/react";
-import styles from '../styles/check-role.module.css'
+import styles from '@/styles/check-role.module.css'
 import { useState } from 'react';
 import Link from 'next/link';
 

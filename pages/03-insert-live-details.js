@@ -3,7 +3,7 @@ import StepMap from '@/components/step-map/step-map';
 import { RiCloseLine } from "@remixicon/react";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import styles from '../styles/insert-live-details.module.css';
+import styles from '@/styles/insert-live-details.module.css';
 
 export default function CheckWebcamSource() {
 

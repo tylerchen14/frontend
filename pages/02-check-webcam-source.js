@@ -3,7 +3,7 @@ import StepMap from '@/components/step-map/step-map';
 import { RiCloseLine, RiMicFill, RiRecordCircleFill } from "@remixicon/react";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import styles from '../styles/check-webcam-source.module.css';
+import styles from '@/styles/check-webcam-source.module.css';
 
 export default function CheckWebcamSource() {
 
