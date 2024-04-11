@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { Peer } from "peerjs";
-const socket = io('/')
+import io from 'socket.io-client';
+const socket = io.connect('http://localhost:3001')
 const myPeer = new Peer();
 import { v4 as uuidV4 } from 'uuid';
-
 
 export default function Stream() {
 
@@ -12,7 +12,6 @@ export default function Stream() {
   const room = uuidV4().toString()
 
   useEffect(() => {
-
     try {
       navigator.mediaDevices.getUserMedia({
         video: true,
@@ -25,17 +24,14 @@ export default function Stream() {
           socket.emit('join-room', room, id);
         });
 
-        socket.on('user-connected', id => {
-          callPeer(id);
-        });
+        myPeer.on('call', call => {
+          call.answer(myStream)
+          addStream(myVidsRef.current, myStream)
+        })
 
-        const callPeer = (id) => {
-          const call = myPeer.call(id, myStream);
-          myPeer.on('call', call => {
-            call.answer(myStream)
-            addStream(myVidsRef.current, myStream)
-          })
-        }
+        socket.on('user-connected', id => {
+          callPeer(id, myStream);
+        });
 
       })
     }
@@ -47,6 +43,10 @@ export default function Stream() {
       myPeer.destroy();
     };
   }, [])
+
+  const callPeer = (id, myStream) => {
+    const call = myPeer.call(id, myStream);
+  }
 
   const addStream = (video, stream) => {
     video.srcObject = stream;
@@ -66,8 +66,8 @@ export default function Stream() {
   return (
     <div
       id='stream-block'
-      className='outline bg-black w-full aspect-video flex flex-col overflow-y-auto'>
-      <video ref={myVidsRef}></video>
+      className=' bg-black w-full flex flex-col mt-2 mb-2 max-h-[75vh]'>
+      <video ref={myVidsRef} className='aspect-video object-contain max-h-[75vh]'></video>
     </div>
   )
 }

@@ -63,34 +63,6 @@
   background-color: transparent;
 }
 
-.member-container {
-  display: flex;
-  flex-direction: row;
-  gap: 15px;
-  margin-bottom: 10px;
-  align-items: center;
-}
-
-.circle-container {
-  position: relative;
-}
-
-.small-circle {
-  padding: 5px;
-  background-color: green;
-  width: 1px;
-  border-radius: 50%;
-  position: absolute;
-  right: 0;
-}
-
-.big-circle {
-  padding: 16px;
-  background-color: #D9D9D9;
-  width: 2px;
-  border-radius: 50%;
-}
-
 /* 中間 */
 .mainframe {
   width: 100%;
@@ -98,7 +70,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: start;
   align-items: center;
 }
 
@@ -175,12 +147,6 @@
   position: relative;
 }
 
-.chat-bottom {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-}
-
 .sticker-comment {
   position: absolute;
   right: 2%;
@@ -204,14 +170,6 @@
   display: flex;
   justify-content: center;
   color: black;
-}
-
-.gift {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  cursor: pointer;
 }
 
 /* 叉叉 */
@@ -249,6 +207,7 @@
   color: white;
   left: 3px;
   padding-left: 16px;
+  z-index: 300;
 }
 
 .arrow-box-right {
@@ -257,6 +216,8 @@
   color: white;
   right: 3px;
   padding-right: 16px;
+  z-index: 300;
+
 }
 
 .iconstore {

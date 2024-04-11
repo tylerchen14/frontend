@@ -3,7 +3,9 @@ import styles from '@/styles/streaming.module.css'
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, RiStoreLine, RiDonutChartFill, RiArrowLeftSLine, RiGift2Line, RiUserFill, RiArrowDownSLine, RiArrowUpSLine, RiCornerUpLeftFill, RiReplyFill, RiPushpinFill, RiSpam3Line, RiCloseFill } from "@remixicon/react";
+import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, RiStoreLine, RiDonutChartFill, RiArrowLeftSLine, RiGift2Line, RiUserFill, RiArrowDownSLine, RiArrowUpSLine, RiCornerUpLeftFill, RiReplyFill, RiPushpinFill, RiSpam3Line, RiCloseFill, RiCoinFill } from "@remixicon/react";
+import Level from '@/components/level/level';
+import Member from '@/components/member/member';
 
 // 去除 server-side rendering
 import dynamic from 'next/dynamic'
@@ -12,8 +14,8 @@ const StreamContent = dynamic(() => import('@/components/stream/stream'), {
 })
 
 // 導入socket.io-client
-import { io } from 'socket.io-client'
-const socket = io('http://localhost:3001');
+import io from 'socket.io-client';
+const socket = io.connect('http://localhost:3001');
 
 export default function Streaming() {
 
@@ -29,39 +31,11 @@ export default function Streaming() {
     window.addEventListener('resize', sizeChange)
   })
 
-
-
-  // 圖像元件
-  const Member = () => {
-    return (
-      <div className={styles['member-container']}>
-        <div className={styles['circle-container']}>
-          <div className={styles['small-circle']}></div>
-          <div className={styles['big-circle']}>
-            <img src="" alt="" />
-          </div>
-        </div>
-        <div>陳泰勒正在做專題</div>
-      </div>
-    )
-  }
-
-  const Level = () => {
-    return (
-      <>
-        <div>Lv.1</div>
-        <hr className="border-dotted" />
-        <hr className="mt-1 mb-1 border-dotted" />
-      </>
-    )
-  }
-
   // 標題敘述
   const initDetail = {
     title: "直播標題標題標題標題",
     detail: "直播詳細敘述，限50字直播詳細敘述，限50字直播詳細敘述，限50字"
   }
-
   const [streamDetail, setstreamDetail] = useState(initDetail)
 
   // 顯示聊天室（桌機）
@@ -103,14 +77,14 @@ export default function Streaming() {
   // 留言功能
   const [replyTarget, setreplyTarget] = useState("")
   const [replyTargetName, setreplyTargetName] = useState("")
+  const room = "liveChatRoom"
 
-  const [comment, setComment] = useState([{
-    name: "陳泰勒",
-    profile: "/images/face-id.png",
-    comment: "測試文字",
-  }])
+  const [comment, setComment] = useState([])
 
   useEffect(() => {
+
+    socket.emit("joinRoom", room);
+
     socket.on('receiveComment', (receiveComment) => {
       setComment(prevComment => [...prevComment, {
         name: receiveComment.name,
@@ -134,7 +108,7 @@ export default function Streaming() {
           comment: inputComment,
           reply: replyTarget,
         }
-        socket.emit('sendComment', newComment)
+        socket.emit('sendComment', { newComment, room })
         e.target.value = ""
       }
       setreplyTarget("")
@@ -145,32 +119,49 @@ export default function Streaming() {
     {
       name: "鑿子",
       src: "/images/axe.png",
+      price: "100",
     }, {
       name: "便當",
       src: "/images/bento.png",
+      price: "300",
     }, {
       name: "燈光",
       src: "/images/flashlight.png",
+      price: "200",
     }, {
       name: "鬼魂",
       src: "/images/ghost.png",
+      price: "500",
     }, {
       name: "繩索",
       src: "/images/lasso.png",
+      price: "100",
     }, {
       name: "開鎖",
       src: "/images/padlock.png",
+      price: "600",
     }, {
       name: "石塊",
       src: "/images/stone.png",
+      price: "1",
     }, {
       name: "寶藏",
       src: "/images/treasure-chest.png",
+      price: "1000",
     }, {
       name: "水瓶",
       src: "/images/water.png",
+      price: "300",
     },
   ]
+
+  const [totalBonus, setTotalBonus] = useState(0)
+
+  const handleGiveGift = (price) => {
+    let gift = Number(price)
+    setTotalBonus(prevTotal => prevTotal + gift)
+  }
+
 
   // 回覆功能
 
@@ -270,7 +261,7 @@ export default function Streaming() {
             onClick={handleShowMemberlist}
           />}
 
-          <div className= {`${styles['sidebar-container']}`}>
+          <div className={`${styles['sidebar-container']}`}>
 
             {/* 搜尋框 */}
             <div className='relative'>
@@ -283,36 +274,37 @@ export default function Streaming() {
                 className={styles['search-icon']}
               ></RiSearchLine>
             </div>
-            <div className='text-left mt-5 mb-1'>觀看人數: 1000</div>
-            <hr className={styles['line']} />
-            <hr className={`${styles['line']} mt-1 mb-5 border-dotted`} />
+            <div className='text-left mt-5 mb-1'>直播總打賞: {totalBonus}</div>
+            <hr className="border-2" />
+            <hr className={`${styles['line']} mt-1 border-dotted`} />
 
             <div className={styles['member-list']}>
               {/* 成員排序內容 */}
-              <Level></Level>
+              <Level name="探險王" amount="5,000+"></Level>
               <Member></Member>
               <Member></Member>
               <Member></Member>
               <Member></Member>
 
-              <Level></Level>
+              <Level name="製圖師" amount="3,000+"></Level>
               <Member></Member>
               <Member></Member>
               <Member></Member>
 
-              <Level></Level>
+              <Level name="鑑賞員" amount="1,000+"></Level>
               <Member></Member>
               <Member></Member>
               <Member></Member>
               <Member></Member>
+
+              <Level name="駝獸" amount="500+"></Level>
               <Member></Member>
               <Member></Member>
+
+              <Level name="新手村"></Level>
               <Member></Member>
               <Member></Member>
-              <Member></Member>
-              <Member></Member>
-              <Member></Member>
-              <Member></Member>
+
             </div>
           </div>
         </div>
@@ -369,9 +361,22 @@ export default function Streaming() {
           <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} `}>
             {giftList.map((c, i) => {
               return (
-                <div className={styles['gift']} key={i}>
-                  <Image width={40} height={40} src={c.src} className={styles['circle']} alt={c.name}></Image>
-                  <div>{c.name}</div>
+                <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer " key={i}>
+
+                  <Image
+                    width={44}
+                    height={44}
+                    src={c.src}
+                    className={styles['circle']}
+                    alt={c.name}
+                    onClick={() => { handleGiveGift(c.price) }}
+                  ></Image>
+
+                  <div className='text-sm'>{c.name}</div>
+                  <div className="flex gap-0.5 items-center">
+                    <RiCoinFill style={{ color: "#fff400" }} className='mt-1 h-4'></RiCoinFill>
+                    <div className='mr-2 text-sm'>{c.price}</div>
+                  </div>
                 </div>
               )
             })}
@@ -456,22 +461,32 @@ export default function Streaming() {
             </div>
 
             {/* 點數與禮物框 */}
-            <div className={styles['chat-bottom']}>
-              <div className='flex '>
+            <div className="mt-3 flex justify-between items-center">
+              <div className='flex gap-1 '>
                 <RiMoneyDollarCircleFill className='cursor-pointer'></RiMoneyDollarCircleFill>
                 <div>{points} pts</div>
               </div>
               <div className='flex gap-2'>
-                {onPhone ? <RiGift2Line
-                  className={styles.iconstore}
-                  onClick={handleShowGift}
-                /> : ""}
-                <RiUserFill className={styles.iconstore}
-                  onClick={handleShowMemberlist}
-                ></RiUserFill>
-                <RiStoreLine className={styles.iconstore}></RiStoreLine>
+                {onPhone ? <>
+                  <RiGift2Line
+                    className={styles.iconstore}
+                    onClick={handleShowGift}
+                  />
+                  <RiUserFill
+                    className={styles.iconstore}
+                    onClick={handleShowMemberlist}
+                  ></RiUserFill>
+                  <RiStoreLine
+                    className={styles.iconstore}
+                  ></RiStoreLine></>
+                  : ""}
+
                 <RiSpam3Line className={styles.iconstore} id='block' onClick={handleBlockComment}></RiSpam3Line>
-                <input type="text" id='block' className={`${blockComment ? "hidden" : ""} text-black`} value={blockWord} onChange={handleBlockWord} maxLength={20} />
+                <input type="text" id='block'
+                  className={` transition-width duration-300 ease-in-out ${blockComment ? "w-0" : "w-[160px]"} text-black`}
+                  value={blockWord}
+                  onChange={handleBlockWord}
+                  maxLength={20} />
               </div>
             </div>
           </div>
