@@ -12,17 +12,17 @@
 
 /*左側 */
 .sidebar {
-  width: 20%;
+  width: 25%;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: 0.5s ease-in-out;
-  margin-top: 30px;
+  margin-top: 20px;
   /* flex-shrink: 0; */
 }
 
 .sidebar-container {
-  width: 87%;
+  width: 90%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -34,7 +34,8 @@
   border-radius: 12px;
   background: #FFF;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-  padding: 5px;
+  padding: 3px;
+  padding-left: 10px;
   width: 100%;
   color: black;
 }
@@ -48,6 +49,18 @@
 
 .member-list {
   overflow-y: auto;
+}
+
+.member-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.member-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.member-list::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
 .member-container {
@@ -85,7 +98,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -106,8 +119,6 @@
   object-fit: cover;
 }
 
-
-
 /* 右側 */
 .chatbar {
   width: 30%;
@@ -120,7 +131,7 @@
 
 .chatbar-content {
   /* outline: 1px solid white; */
-  width: 90%;
+  width: 92%;
   height: 95%;
   display: flex;
   flex-direction: column;
@@ -129,12 +140,10 @@
 .steamDetail {
   margin-right: 10px;
   margin-top: 4px;
-  /* outline: 1px solid #fff; */
 }
 
 .details {
   color: black;
-  /* outline: 1px solid #fff; */
   opacity: 0;
 }
 
@@ -148,22 +157,16 @@
   /* outline: 1px solid #fff; */
 }
 
-.chat-circle {
-  padding: 12px;
-  background-color: #D9D9D9;
-  border-radius: 50%;
-  width: 1px;
+.chat::-webkit-scrollbar {
+  width: 8px;
 }
 
-.chat-name {
-  flex-shrink: 0;
+.chat::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
-.comment-chat {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 6px;
-  flex-wrap: wrap;
+.chat::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
 .comment-bar {
@@ -183,6 +186,32 @@
   right: 2%;
   top: 10%;
   color: black;
+}
+
+.circle {
+  padding: 6px;
+  background: #D9D9D9;
+  border-radius: 4px;
+}
+
+.gift-bar {
+  gap: 32px;
+  /* width: 98%; */
+  border-radius: 8px;
+  background: rgba(87, 87, 87, 0.27);
+  backdrop-filter: blur(2px);
+  padding: 10px 15px;
+  display: flex;
+  justify-content: center;
+  color: black;
+}
+
+.gift {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
 }
 
 /* 叉叉 */
@@ -235,20 +264,33 @@
   border-radius: 3px;
   background: #000;
   box-shadow: -4px -4px 5px 0px rgba(255, 255, 255, 0.25), 4px 4px 5px 0px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
 }
 
 .icon_reply {
   margin-top: 6px;
   height: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
   /* outline: 1px solid white; */
 }
 
 .repliedTarget {
-  background: rgba(87, 87, 87, 0.27);
-  backdrop-filter: blur(2px);
   overflow-x: auto;
-  width: 100%;
 }
+
+.repliedTarget::-webkit-scrollbar {
+  width: 8px;
+}
+
+.repliedTarget::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.repliedTarget::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
 
 /* 開始 */
 @media (max-width: 768px) {
@@ -317,5 +359,37 @@
     overflow-y: auto;
     height: 250px;
   }
+
+
+  .gift-bar {
+    overflow-x: auto;
+    gap: 15px;
+    position: absolute;
+    bottom: 11%;
+    z-index: 10;
+    color: white;
+    backdrop-filter: blur(6px);
+  }
+
+  .gift-bar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .gift-bar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  .gift-bar::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  .gift {
+    font-size: 14px;
+  }
+
+  .circle {
+    padding: 20px;
+  }
+
 
 }

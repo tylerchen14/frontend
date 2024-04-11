@@ -1,49 +1,73 @@
-import React from 'react'
-import styles from './stream.module.css'
+import React, { useRef, useState, useEffect } from 'react'
 import { Peer } from "peerjs";
-const socket = io('/05-streaming')
-const myPeer = new Peer(undefined, {
-  host: "/",
-  port: "3002",
-});
+const socket = io('/')
+const myPeer = new Peer();
+import { v4 as uuidV4 } from 'uuid';
+
 
 export default function Stream() {
 
-  const myVid = document.createElement('video');
-  myVid.muted = true;
+  const myVidsRef = useRef(null)
+  const [peerid, setPeerId] = useState()
+  const room = uuidV4().toString()
 
+  useEffect(() => {
 
-  myPeer.on('open', id => {
-    socket.emit('join-room', room, id)
-    console.log(room);
-  })
+    try {
+      navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      }).then(myStream => {
+        addStream(myVidsRef.current, myStream)
 
-  navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true,
-  }).then(stream => {
-    addStream(myVid, stream)
+        myPeer.on('open', id => {
+          setPeerId(id)
+          socket.emit('join-room', room, id);
+        });
 
-    myPeer.on('call', call => {
-      call.answer(stream)
-      const video = document.createElement('video')
-      call.on('stream', userStream => {
-        addStream(video, userStream)
+        socket.on('user-connected', id => {
+          callPeer(id);
+        });
+
+        const callPeer = (id) => {
+          const call = myPeer.call(id, myStream);
+          myPeer.on('call', call => {
+            call.answer(myStream)
+            addStream(myVidsRef.current, myStream)
+          })
+        }
+
       })
-    })
-  })
+    }
+    catch (e) {
+      console.log('連不到設備', e)
+    }
+
+    return () => {
+      myPeer.destroy();
+    };
+  }, [])
 
   const addStream = (video, stream) => {
     video.srcObject = stream;
+    video.playsInline = true;
+    video.muted = true;
+
     video.addEventListener('loadedmetadata', () => {
       video.play()
     })
-    const streamBlock = document.querySelector('#stream-block')
-    streamBlock.append(video)
+
+    video.onended = () => {
+      video.srcObject = null;
+      video.remove();
+    };
   }
 
   return (
-    <div className={styles['streaming-content']} id='stream-block'>
+    <div
+      id='stream-block'
+      className='outline bg-black w-full aspect-video flex flex-col overflow-y-auto'>
+      <video ref={myVidsRef}></video>
     </div>
   )
 }
