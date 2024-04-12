@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, RiStoreLine, RiDonutChartFill, RiArrowLeftSLine, RiGift2Line, RiUserFill, RiArrowDownSLine, RiArrowUpSLine, RiCornerUpLeftFill, RiReplyFill, RiPushpinFill, RiSpam3Line, RiCloseFill, RiCoinFill, RiCrosshair2Line, RiLoopLeftLine } from "@remixicon/react";
 import Level from '@/components/level/level';
 import Member from '@/components/member/member';
+import Title from '@/components/title/title';
 
 // 去除 server-side rendering
 import dynamic from 'next/dynamic'
@@ -31,12 +32,7 @@ export default function Streaming() {
     window.addEventListener('resize', sizeChange)
   })
 
-  // 標題敘述
-  const initDetail = {
-    title: "直播標題標題標題標題",
-    detail: "直播詳細敘述，限50字直播詳細敘述，限50字直播詳細敘述，限50字"
-  }
-  const [streamDetail, setstreamDetail] = useState(initDetail)
+
 
   // 顯示聊天室（桌機）
   const [showChatroom, setShowChatroom] = useState(true);
@@ -57,13 +53,6 @@ export default function Streaming() {
 
   const handleShowGift = () => {
     setShowGift(!showGift)
-  }
-
-  // 顯示敘述
-  const [showDetail, setShowDetail] = useState(false);
-
-  const handleShowDetail = () => {
-    setShowDetail(!showDetail)
   }
 
   // 顯示成員列表（手機）
@@ -190,7 +179,7 @@ export default function Streaming() {
         if (chance > 0) {
           newChance = chance - 1
         }
-        return { ...item, chance: newChance, grayscale: item.name == name && chance <= 0 }
+        return { ...item, chance: newChance, grayscale: item.name == name && newChance <= 0 }
       }
       return item
     })
@@ -243,7 +232,6 @@ export default function Streaming() {
     });
     setComment(updatedComments);
   }, [blockWord]);
-
 
   const [pin, setPin] = useState(false)
   const [pinnedComment, setPinnedComment] = useState("")
@@ -338,8 +326,6 @@ export default function Streaming() {
 
   }
 
-
-
   return (
     <>
 
@@ -424,31 +410,14 @@ export default function Streaming() {
             <RiCloseLine className={styles['cancel']} />
           </Link>
 
-          {/* 標題敘述 */}
-          <div className={styles['title-container']}>
-
-            {onPhone ? "" : <RiDonutChartFill
-              className={styles['steamDetail']}
-            ></RiDonutChartFill>}
-
-            <div>
-              <div className='flex items-center'>
-                <div className='text-xl font-semibold'>{streamDetail.title}</div>
-                {showDetail ?
-                  <RiArrowUpSLine
-                    onClick={handleShowDetail} />
-                  :
-                  <RiArrowDownSLine
-                    onClick={handleShowDetail} />
-                }
-              </div>
-              <div className={`font-semibold text-sm ${showDetail ? "block" : "hidden"}`}
-              >{streamDetail.detail}</div>
-            </div>
-          </div>
+          {/* 標題敘述 -桌機 */}
+          {onPhone ? "" :<Title></Title>}
 
           {/* 直播框 */}
           <StreamContent></StreamContent>
+
+          {/* 標題敘述 -手機 */}
+          {onPhone ? <Title></Title> :""}
 
           {/* 禮物框 */}
           {showEffect ?
@@ -457,7 +426,7 @@ export default function Streaming() {
                 {eList.map((c, i) => {
                   return (
                     <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer " key={i}>
-                    
+
                       <Image
                         width={44}
                         height={44}

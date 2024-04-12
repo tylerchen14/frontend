@@ -66,8 +66,8 @@ export default function Stream() {
   return (
     <div
       id='stream-block'
-      className=' bg-black w-full flex flex-col mt-2 mb-2 max-h-[75vh]'>
-      <video ref={myVidsRef} className='aspect-video object-contain max-h-[75vh]'></video>
+      className=' bg-black w-full flex flex-col mt-2 mb-2 max-h-[75vh] max-md:mt-10'>
+      <video ref={myVidsRef} className='aspect-video object-contain max-h-[75vh] '></video>
     </div>
   )
 }
