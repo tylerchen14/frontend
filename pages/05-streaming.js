@@ -3,7 +3,7 @@ import styles from '@/styles/streaming.module.css'
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, RiStoreLine, RiDonutChartFill, RiArrowLeftSLine, RiGift2Line, RiUserFill, RiArrowDownSLine, RiArrowUpSLine, RiCornerUpLeftFill, RiReplyFill, RiPushpinFill, RiSpam3Line, RiCloseFill, RiCoinFill } from "@remixicon/react";
+import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, RiStoreLine, RiDonutChartFill, RiArrowLeftSLine, RiGift2Line, RiUserFill, RiArrowDownSLine, RiArrowUpSLine, RiCornerUpLeftFill, RiReplyFill, RiPushpinFill, RiSpam3Line, RiCloseFill, RiCoinFill, RiCrosshair2Line, RiLoopLeftLine } from "@remixicon/react";
 import Level from '@/components/level/level';
 import Member from '@/components/member/member';
 
@@ -79,7 +79,12 @@ export default function Streaming() {
   const [replyTargetName, setreplyTargetName] = useState("")
   const room = "liveChatRoom"
 
-  const [comment, setComment] = useState([])
+  const [comment, setComment] = useState([{
+    name: "陳泰勒",
+    profile: "/images/face-id.png",
+    comment: "這是留言",
+    reply: ""
+  }])
 
   useEffect(() => {
 
@@ -120,48 +125,84 @@ export default function Streaming() {
       name: "鑿子",
       src: "/images/axe.png",
       price: "100",
+      chance: 1,
+      grayscale: false,
     }, {
       name: "便當",
       src: "/images/bento.png",
       price: "300",
+      chance: 1,
+      grayscale: false,
     }, {
       name: "燈光",
       src: "/images/flashlight.png",
       price: "200",
+      chance: 1,
+      grayscale: false,
     }, {
       name: "鬼魂",
       src: "/images/ghost.png",
       price: "500",
+      chance: 1,
+      grayscale: false,
     }, {
       name: "繩索",
       src: "/images/lasso.png",
       price: "100",
+      chance: 1,
+      grayscale: false,
     }, {
       name: "開鎖",
       src: "/images/padlock.png",
       price: "600",
+      chance: 1,
+      grayscale: false,
     }, {
       name: "石塊",
       src: "/images/stone.png",
       price: "1",
+      chance: 1,
+      grayscale: false,
     }, {
       name: "寶藏",
       src: "/images/treasure-chest.png",
       price: "1000",
+      chance: 1,
+      grayscale: false,
     }, {
       name: "水瓶",
       src: "/images/water.png",
       price: "300",
+      chance: 100,
+      grayscale: false,
     },
   ]
 
   const [totalBonus, setTotalBonus] = useState(0)
+  const [gList, setGList] = useState(giftList)
 
-  const handleGiveGift = (price) => {
+  const handleGiveGift = (price, chance, name) => {
     let gift = Number(price)
-    setTotalBonus(prevTotal => prevTotal + gift)
-  }
 
+    const updateList = gList.map(item => {
+      if (item.name === name) {
+        let newChance = chance
+        if (chance > 0) {
+          newChance = chance - 1
+        }
+        return { ...item, chance: newChance, grayscale: item.name == name && chance <= 0 }
+      }
+      return item
+    })
+    setGList(updateList)
+
+    if (chance > 0) {
+      setTotalBonus(prevTotal => prevTotal + gift)
+    } else {
+      return
+    }
+
+  }
 
   // 回覆功能
 
@@ -222,7 +263,7 @@ export default function Streaming() {
 
   // 點數功能
 
-  const [points, setPoints] = useState(0)
+  const [points, setPoints] = useState(300)
   const [clickedIds, setClickedIds] = useState([])
 
   useEffect(() => {
@@ -246,6 +287,58 @@ export default function Streaming() {
       setClickedIds(prevIds => [...prevIds, id])
     }
   }
+
+  const effectList = [
+    {
+      name: "吸睛文字",
+      src: "/images/marker.png",
+      price: "100",
+      grayscale: false,
+    },
+    {
+      name: "替換背景",
+      src: "/images/neon.png",
+      price: "200",
+      grayscale: false,
+    },
+    {
+      name: "改換字體",
+      src: "/images/font.png",
+      price: "300",
+      grayscale: false,
+    },
+    {
+      name: "釘選留言",
+      src: "/images/pin.png",
+      price: "400",
+      grayscale: false,
+    },
+  ]
+
+  const [showEffect, setShowEffect] = useState(false)
+  const [eList, setEList] = useState(effectList)
+
+  const handleEffectTab = () => {
+    setShowEffect(!showEffect)
+  }
+
+  const handleGiveEffect = (price, name) => {
+    let effect = Number(price)
+
+    const updateList = eList.map(item => {
+      return { ...item, grayscale: item.name == name && points < effect }
+    })
+    setEList(updateList)
+
+    if (points >= effect) {
+      setPoints(prevP => prevP - effect)
+    } else {
+      return
+    }
+
+  }
+
+
 
   return (
     <>
@@ -358,29 +451,59 @@ export default function Streaming() {
           <StreamContent></StreamContent>
 
           {/* 禮物框 */}
-          <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} `}>
-            {giftList.map((c, i) => {
-              return (
-                <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer " key={i}>
+          {showEffect ?
+            <>
+              <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} w-5/12 gap-14`}>
+                {eList.map((c, i) => {
+                  return (
+                    <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer " key={i}>
+                    
+                      <Image
+                        width={44}
+                        height={44}
+                        src={c.src}
+                        className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
+                        alt={c.name}
+                        onClick={() => { handleGiveEffect(c.price, c.name) }}
+                      ></Image>
 
-                  <Image
-                    width={44}
-                    height={44}
-                    src={c.src}
-                    className={styles['circle']}
-                    alt={c.name}
-                    onClick={() => { handleGiveGift(c.price) }}
-                  ></Image>
+                      <div className="text-sm">{c.name}</div>
+                      <div className="flex gap-0.5 items-center">
+                        <RiCoinFill style={{ color: "#fff400" }} className='mt-1 h-4'></RiCoinFill>
+                        <div className='mr-2 text-sm'>{c.price}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </>
+            :
+            <>
+              <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} gap-8 `}>
+                {gList.map((c, i) => {
+                  return (
+                    <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer " key={i}>
 
-                  <div className='text-sm'>{c.name}</div>
-                  <div className="flex gap-0.5 items-center">
-                    <RiCoinFill style={{ color: "#fff400" }} className='mt-1 h-4'></RiCoinFill>
-                    <div className='mr-2 text-sm'>{c.price}</div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                      <Image
+                        width={44}
+                        height={44}
+                        src={c.src}
+                        className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
+                        alt={c.name}
+                        onClick={() => { handleGiveGift(c.price, c.chance, c.name) }}
+                      ></Image>
+
+                      <div className='text-sm'>{c.name}({c.chance})</div>
+                      <div className="flex items-center">
+                        <RiCoinFill style={{ color: "#fff400" }} className='mt-1 h-4'></RiCoinFill>
+                        <div className='mr-2 text-sm'>{c.price}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </>}
+
         </div>
 
         {/* 右欄 */}
@@ -436,9 +559,7 @@ export default function Streaming() {
                   <RiCloseFill className=' cursor-pointer  h-5' onClick={handleUnpin}></RiCloseFill>
                 </div>
               </div>
-
               <div className='w-[210px] ml-9 break-words'>{pinnedComment}</div>
-
             </div>
 
             <hr className="border-dotted mb-1" />
@@ -463,7 +584,10 @@ export default function Streaming() {
             {/* 點數與禮物框 */}
             <div className="mt-3 flex justify-between items-center">
               <div className='flex gap-1 '>
-                <RiMoneyDollarCircleFill className='cursor-pointer'></RiMoneyDollarCircleFill>
+                <RiMoneyDollarCircleFill
+                  className='cursor-pointer'
+                  onClick={handleEffectTab}
+                ></RiMoneyDollarCircleFill>
                 <div>{points} pts</div>
               </div>
               <div className='flex gap-2'>
@@ -483,7 +607,7 @@ export default function Streaming() {
 
                 <RiSpam3Line className={styles.iconstore} id='block' onClick={handleBlockComment}></RiSpam3Line>
                 <input type="text" id='block'
-                  className={` transition-width duration-300 ease-in-out ${blockComment ? "w-0" : "w-[160px]"} text-black`}
+                  className={` transition-width duration-300 ease-in-out ${blockComment ? "w-0" : "w-[140px]"} text-black`}
                   value={blockWord}
                   onChange={handleBlockWord}
                   maxLength={20} />
