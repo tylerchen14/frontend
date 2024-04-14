@@ -1,11 +1,11 @@
-import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseFill, RiCloseLine, RiCoinFill, RiCornerUpLeftFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiSearchLine, RiSpam3Line, RiStoreLine, RiUserFill, RiUser3Fill } from "@remixicon/react";
 import Level from '@/components/level/level';
 import Member from '@/components/member/member';
 import Title from '@/components/title/title';
 import styles from '@/styles/streaming.module.css';
+import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseFill, RiCloseLine, RiCoinFill, RiCornerUpLeftFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiSearchLine, RiSpam3Line, RiStoreLine, RiUser3Fill, RiUserFill } from "@remixicon/react";
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // 去除 server-side rendering
 import dynamic from 'next/dynamic';
@@ -65,11 +65,14 @@ export default function Streaming() {
   const room = "liveChatRoom"
 
   const [comment, setComment] = useState([{
+    id:0,
     name: "陳泰勒",
     profile: "/images/face-id.png",
     comment: "這是留言",
     reply: ""
   }])
+
+  console.log({comment});
 
   const [isConnected, setIsConnected] = useState(false)
   const [peopleOnline, setPeopleOnline] = useState(0)
@@ -90,6 +93,7 @@ export default function Streaming() {
     const handleReceiveComment = (receiveComment) => {
       console.log({ receiveComment });
       setComment(prevComment => [...prevComment, {
+        id: receiveComment.id,
         name: receiveComment.name,
         profile: receiveComment.profile,
         comment: receiveComment.comment,
@@ -107,7 +111,7 @@ export default function Streaming() {
       socket.off('receiveComment', handleReceiveComment)
       socket.disconnect();
     }
-  }, [socket, room])
+  }, [])
 
   useEffect(() => {
     console.log(peopleOnline);
@@ -116,8 +120,11 @@ export default function Streaming() {
   const handleCommentSubmit = (e) => {
     if (e.key === "Enter") {
       const inputComment = e.target.value.trim();
+      let newId=comment.length + 1;
+      console.log(newId);
       if (inputComment !== "") {
         const newComment = {
+          id: newId,
           name: "陳泰勒",
           profile: "/images/face-id.png",
           comment: inputComment,
@@ -133,6 +140,90 @@ export default function Streaming() {
           console.error('socket沒有連線');
         }
       }
+    }
+  }
+
+
+  // 回覆功能
+
+  const handleClickIcon = (comment, name) => {
+    const target = comment;
+    const targetName = name;
+    console.log(target);
+    setreplyTarget(target)
+    setreplyTargetName(targetName)
+  }
+
+  const handleReply = () => {
+    setreplyTarget("")
+    setreplyTargetName("")
+  }
+
+  const [blockComment, setBlockComment] = useState(true)
+  const [blockWord, setBlockWord] = useState([])
+
+  const handleBlockComment = () => {
+    setBlockComment(!blockComment)
+  }
+
+  const handleBlockWord = (e) => {
+    setBlockWord(e.target.value.split(","))
+    console.log(blockWord);
+  }
+
+  useEffect(() => {
+    const updatedComments = comment.map(c => {
+      let updatedComment = c.comment;
+      blockWord.forEach(word => {
+        if (updatedComment.includes(word)) {
+          updatedComment = updatedComment.replace(word, "***");
+        }
+      });
+      return { ...c, comment: updatedComment };
+    });
+    setComment(updatedComments);
+  }, [blockWord]);
+
+  const [pin, setPin] = useState(false)
+  const [pinnedComment, setPinnedComment] = useState("")
+  const [pinnedProfile, setPinnedProfile] = useState("")
+  const [pinnedName, setPinnedName] = useState("")
+
+  const handlePin = (pinP, pinN, pinC) => {
+    setPin(!pin)
+    setPinnedComment(pinC)
+    setPinnedName(pinN)
+    setPinnedProfile(pinP)
+  }
+
+  const handleUnpin = () => {
+    setPin(false)
+  }
+
+  // 點數功能
+
+  const [points, setPoints] = useState(300)
+  const [clickedIds, setClickedIds] = useState([])
+
+  useEffect(() => {
+    let newId=comment.length + 1;
+    const getPoints = setInterval(() => {
+      const newComment = {
+        id: newId,
+        name: "系統",
+        profile: "/images/treasure.png",
+        comment: "點頭貼，領點數！",
+      }
+      socket.emit('sendComment', newComment, room)
+    }, 100000);
+
+    return () => clearInterval(getPoints)
+  }, [])
+
+  const handleGetPoints = (profile, id) => {
+    if (profile == "/images/treasure.png" && !clickedIds.includes(id)) {
+      setPoints(prevPoint => prevPoint + 100)
+      setClickedIds(prevIds => [...prevIds, id])
     }
   }
 
@@ -218,89 +309,6 @@ export default function Streaming() {
       return
     }
 
-  }
-
-  // 回覆功能
-
-  const handleClickIcon = (comment, name) => {
-    const target = comment;
-    const targetName = name;
-    console.log(target);
-    setreplyTarget(target)
-    setreplyTargetName(targetName)
-  }
-
-  const handleReply = () => {
-    setreplyTarget("")
-    setreplyTargetName("")
-  }
-
-  const [blockComment, setBlockComment] = useState(true)
-  const [blockWord, setBlockWord] = useState([])
-
-  const handleBlockComment = () => {
-    setBlockComment(!blockComment)
-  }
-
-  const handleBlockWord = (e) => {
-    setBlockWord(e.target.value.split(","))
-    console.log(blockWord);
-  }
-
-  useEffect(() => {
-    const updatedComments = comment.map(c => {
-      let updatedComment = c.comment;
-      blockWord.forEach(word => {
-        if (updatedComment.includes(word)) {
-          updatedComment = updatedComment.replace(word, "***");
-        }
-      });
-      return { ...c, comment: updatedComment };
-    });
-    setComment(updatedComments);
-  }, [blockWord]);
-
-  const [pin, setPin] = useState(false)
-  const [pinnedComment, setPinnedComment] = useState("")
-  const [pinnedProfile, setPinnedProfile] = useState("")
-  const [pinnedName, setPinnedName] = useState("")
-
-  const handlePin = (pinP, pinN, pinC) => {
-    setPin(!pin)
-    setPinnedComment(pinC)
-    setPinnedName(pinN)
-    setPinnedProfile(pinP)
-  }
-
-  const handleUnpin = () => {
-    setPin(false)
-  }
-
-  // 點數功能
-
-  const [points, setPoints] = useState(300)
-  const [clickedIds, setClickedIds] = useState([])
-
-  useEffect(() => {
-    let p = 0
-    const getPoints = setInterval(() => {
-      const newComment = {
-        id: p++,
-        name: "系統",
-        profile: "/images/treasure.png",
-        comment: "點頭貼，領點數！",
-      }
-      socket.emit('sendComment', newComment)
-    }, 100000);
-
-    return () => clearInterval(getPoints)
-  }, [])
-
-  const handleGetPoints = (profile, id) => {
-    if (profile == "/images/treasure.png" && !clickedIds.includes(id)) {
-      setPoints(prevPoint => prevPoint + 100)
-      setClickedIds(prevIds => [...prevIds, id])
-    }
   }
 
   const effectList = [
@@ -522,9 +530,9 @@ export default function Streaming() {
 
             {/* 聊天內容 */}
             <div className={styles.chat}>
-              {comment.map((c, i) => {
+              {comment.map((c) => {
                 return (
-                  <div key={i} className='flex flex-col items-start mb-3'>
+                  <div key={c.id} className='flex flex-col items-start mb-3'>
 
                     {c.reply && (
                       <div className={`flex text-sm ml-6 mb-1`}>
