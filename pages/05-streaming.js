@@ -1,22 +1,21 @@
-import React from 'react'
-import styles from '@/styles/streaming.module.css'
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { RiSearchLine, RiCloseLine, RiArrowRightSLine, RiMoneyDollarCircleFill, RiStoreLine, RiDonutChartFill, RiArrowLeftSLine, RiGift2Line, RiUserFill, RiArrowDownSLine, RiArrowUpSLine, RiCornerUpLeftFill, RiReplyFill, RiPushpinFill, RiSpam3Line, RiCloseFill, RiCoinFill, RiCrosshair2Line, RiLoopLeftLine } from "@remixicon/react";
+import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseFill, RiCloseLine, RiCoinFill, RiCornerUpLeftFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiSearchLine, RiSpam3Line, RiStoreLine, RiUserFill, RiUser3Fill } from "@remixicon/react";
 import Level from '@/components/level/level';
 import Member from '@/components/member/member';
 import Title from '@/components/title/title';
+import styles from '@/styles/streaming.module.css';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useReducer, useRef, useState } from 'react';
 
 // 去除 server-side rendering
-import dynamic from 'next/dynamic'
+import dynamic from 'next/dynamic';
 const StreamContent = dynamic(() => import('@/components/stream/stream'), {
   ssr: false,
 })
 
-// 導入socket.io-client
-import io from 'socket.io-client';
-const socket = io.connect('http://localhost:3001');
+  // 導入socket.io-client
+  import io from 'socket.io-client';
+  const socket = io.connect('http://localhost:3001')
 
 export default function Streaming() {
 
@@ -31,8 +30,6 @@ export default function Streaming() {
     sizeChange()
     window.addEventListener('resize', sizeChange)
   })
-
-
 
   // 顯示聊天室（桌機）
   const [showChatroom, setShowChatroom] = useState(true);
@@ -60,7 +57,6 @@ export default function Streaming() {
 
   const handleShowMemberlist = () => {
     setShowMember(!showMember)
-    console.log(showMember);
   }
 
   // 留言功能
@@ -75,24 +71,50 @@ export default function Streaming() {
     reply: ""
   }])
 
+  const [isConnected, setIsConnected] = useState(false)
+  const [peopleOnline, setPeopleOnline] = useState(0)
+
   useEffect(() => {
 
-    socket.emit("joinRoom", room);
+    const handelConnection = () => {
+      console.log(`連線狀況 ${isConnected}`);
+      setIsConnected(true)
+      socket.emit("joinRoom", room);
+      console.log(`房間是 ${room}`);
+    }
 
-    socket.on('receiveComment', (receiveComment) => {
+    const handlePeopleOnline = (liveNum) => {
+      setPeopleOnline(liveNum)
+    }
+
+    const handleReceiveComment = (receiveComment) => {
+      console.log({ receiveComment });
       setComment(prevComment => [...prevComment, {
         name: receiveComment.name,
         profile: receiveComment.profile,
         comment: receiveComment.comment,
         reply: receiveComment.reply
       }])
-    })
-    return () => {
-      socket.off('receiveComment')
     }
-  }, [])
 
-  const handleKeyDown = (e) => {
+    socket.on('connect', handelConnection)
+    socket.on('updateLiveNum', handlePeopleOnline)
+    socket.on('receiveComment', handleReceiveComment)
+
+    return () => {
+      socket.off('connect', handelConnection)
+      socket.off('updateLiveNum', handlePeopleOnline)
+      socket.off('receiveComment', handleReceiveComment)
+      socket.disconnect();
+    }
+  }, [socket, room])
+
+  useEffect(() => {
+    console.log(peopleOnline);
+  }, [peopleOnline]);
+
+
+  const handleCommentSubmit = (e) => {
     if (e.key === "Enter") {
       const inputComment = e.target.value.trim();
       if (inputComment !== "") {
@@ -102,10 +124,16 @@ export default function Streaming() {
           comment: inputComment,
           reply: replyTarget,
         }
-        socket.emit('sendComment', { newComment, room })
-        e.target.value = ""
+
+        if (socket && socket.connected) {
+          socket.emit('sendComment', newComment, room)
+          console.log({ newComment }, { room });
+          e.target.value = ""
+          setreplyTarget("")
+        } else {
+          console.error('socket沒有連線');
+        }
       }
-      setreplyTarget("")
     }
   }
 
@@ -411,13 +439,13 @@ export default function Streaming() {
           </Link>
 
           {/* 標題敘述 -桌機 */}
-          {onPhone ? "" :<Title></Title>}
+          {onPhone ? "" : <Title></Title>}
 
           {/* 直播框 */}
           <StreamContent></StreamContent>
 
           {/* 標題敘述 -手機 */}
-          {onPhone ? <Title></Title> :""}
+          {onPhone ? <Title></Title> : ""}
 
           {/* 禮物框 */}
           {showEffect ?
@@ -451,7 +479,7 @@ export default function Streaming() {
               <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} gap-8 `}>
                 {gList.map((c, i) => {
                   return (
-                    <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer " key={i}>
+                    <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer" key={i}>
 
                       <Image
                         width={44}
@@ -464,8 +492,12 @@ export default function Streaming() {
 
                       <div className='text-sm'>{c.name}({c.chance})</div>
                       <div className="flex items-center">
-                        <RiCoinFill style={{ color: "#fff400" }} className='mt-1 h-4'></RiCoinFill>
-                        <div className='mr-2 text-sm'>{c.price}</div>
+                        <RiCoinFill
+                          style={{ color: "#fff400" }}
+                          className='mt-1 h-4'></RiCoinFill>
+
+                        <div
+                          className='mr-2 text-sm'>{c.price}</div>
                       </div>
                     </div>
                   )
@@ -479,7 +511,13 @@ export default function Streaming() {
         <div className={`${styles['chatbar']} ${showChatroom ? '' : styles.hidden_right}`}>
           <div className={styles['chatbar-content']}>
             {onPhone ? "" : <>
-              <div className='text-xl'>聊天室</div>
+              <div className="flex justify-between">
+                <div className='text-xl'>聊天室</div>
+                <div className="flex items-center">
+                  <RiUser3Fill className="h-4 mt-0.5"></RiUser3Fill>
+                  {peopleOnline}
+                </div>
+              </div>
               <hr className="mt-2" />
             </>}
 
@@ -525,7 +563,7 @@ export default function Streaming() {
                   <div className='shrink-0'>{pinnedName}</div>
                 </div>
                 <div className='w-6/12 flex justify-end items-center'>
-                  <RiCloseFill className=' cursor-pointer  h-5' onClick={handleUnpin}></RiCloseFill>
+                  <RiCloseFill className=' cursor-pointer h-5' onClick={handleUnpin}></RiCloseFill>
                 </div>
               </div>
               <div className='w-[210px] ml-9 break-words'>{pinnedComment}</div>
@@ -543,7 +581,7 @@ export default function Streaming() {
             {/* 發訊息 */}
             <div className={styles['comment-bar']}>
               <input type="text" placeholder='輸入內容' className='w-full p-1 pl-2 rounded text-black'
-                onKeyDown={handleKeyDown}
+                onKeyDown={handleCommentSubmit}
                 maxLength={100}
               />
 
@@ -576,7 +614,7 @@ export default function Streaming() {
 
                 <RiSpam3Line className={styles.iconstore} id='block' onClick={handleBlockComment}></RiSpam3Line>
                 <input type="text" id='block'
-                  className={` transition-width duration-300 ease-in-out ${blockComment ? "w-0" : "w-[140px]"} text-black`}
+                  className={` transition-width duration-300 ease-in-out ${blockComment ? "w-0" : "w-[140px]"} max-md:${blockComment ? "w-0" : "w-[100px]"} text-black`}
                   value={blockWord}
                   onChange={handleBlockWord}
                   maxLength={20} />

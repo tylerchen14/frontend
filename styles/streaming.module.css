@@ -239,7 +239,6 @@
   }
 
   .mainframe {
-    height: 100%;
     background-color: #292929;
     justify-content: start;
   }
@@ -252,16 +251,18 @@
   }
 
   .chat {
-    outline: 1px solid white;
+    /* outline: 1px solid white; */
     margin-top: 0;
   }
 
   .sidebar {
     position: absolute;
     width: 100%;
+
     top: 35%;
     background-color: #292929;
     display: flex;
+    outline: 1px solid white;
   }
 
   .sidebar-container {
@@ -276,7 +277,7 @@
 
   .hidden_down {
     opacity: 0;
-    transform: translateY(100%);
+    transform: translateY(150%);
     width: 100%;
   }
 
@@ -290,16 +291,14 @@
   .member-list {
     z-index: 500;
     overflow-y: auto;
-    height: 250px;
+    height: 300px;
   }
-
 
   .gift-bar {
     overflow-x: auto;
-    gap: 15px;
+    gap: 20px;
     position: absolute;
-    bottom: 11%;
-    z-index: 10;
+    transform: translateY(280%);
     color: white;
     backdrop-filter: blur(6px);
   }
@@ -316,17 +315,12 @@
     background-color: transparent;
   }
 
-  .gift {
-    font-size: 14px;
-  }
-
   .circle {
-    padding: 20px;
+    padding: 8px;
   }
 
   .cancel{
     color: white;
   }
-
 
 }
