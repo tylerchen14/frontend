@@ -113,7 +113,6 @@ export default function Streaming() {
     console.log(peopleOnline);
   }, [peopleOnline]);
 
-
   const handleCommentSubmit = (e) => {
     if (e.key === "Enter") {
       const inputComment = e.target.value.trim();
