@@ -1,17 +1,15 @@
 import Title from '@/components/title/title';
-import styles from './streamScreen.module.css';
 import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiCoinFill } from "@remixicon/react";
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import styles from './streamScreen.module.css';
 const StreamContent = dynamic(() => import('@/components/stream/stream'), {
   ssr: false,
 })
 
+export default function StreamScreen({ isConnected, onPhone, handleSidebarHide, showSidebar, handleChatroom, showChatroom, showEffect, gList, handleGiveGift, showGift, eList, handleGiveEffect, setShowSidebar, setShowChatroom, handleShowGift }) {
 
-export default function StreamScreen({ onPhone, handleSidebarHide, showSidebar, handleChatroom, showChatroom, showEffect, gList, handleGiveGift, showGift,eList,handleGiveEffect }) {
-
- 
 
   return (
     <div className={styles['mainframe']}>
@@ -39,7 +37,9 @@ export default function StreamScreen({ onPhone, handleSidebarHide, showSidebar, 
       {onPhone ? "" : <Title></Title>}
 
       {/* 直播框 */}
-      <StreamContent></StreamContent>
+      <StreamContent
+        isConnected={isConnected}
+      ></StreamContent>
 
       {/* 標題敘述 -手機 */}
       {onPhone ? <Title></Title> : ""}
@@ -101,7 +101,7 @@ export default function StreamScreen({ onPhone, handleSidebarHide, showSidebar, 
             })}
           </div>
         </>}
-     
+
     </div>
 
   )

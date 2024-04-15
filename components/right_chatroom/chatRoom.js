@@ -1,8 +1,173 @@
+import { socket } from "@/src/socket";
 import { RiCloseFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiSpam3Line, RiStoreLine, RiUser3Fill, RiUserFill } from "@remixicon/react";
-import styles from './chatRoom.module.css';
 import Image from 'next/image';
+import { useEffect, useState } from "react";
+import styles from './chatRoom.module.css';
 
-export default function ChatRoom({ showChatroom, onPhone, peopleOnline, comment, pin, pinnedProfile, pinnedName, handleUnpin, pinnedComment, replyTarget, replyTargetName, handleReply, handleCommentSubmit, handleEffectTab, points, handleBlockComment, blockComment, blockWord, handleBlockWord, handlePin, handleClickIcon }) {
+export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEffectTab, points }) {
+
+  // handleClickIcon
+  // comment
+  // peopleOnline
+  // pin
+  // showChatroom, onPhone, pinnedProfile, pinnedName, handleUnpin, pinnedComment, replyTarget, replyTargetName, handleReply, handleCommentSubmit, , , handleBlockComment, blockComment, blockWord, handleBlockWord, handlePin,
+
+  // 留言功能
+  const [comment, setComment] = useState([{
+    id: 1,
+    name: "陳泰勒",
+    profile: "/images/face-id.png",
+    comment: "第一個留言",
+    reply: ""
+  }])
+
+  const [replyTarget, setreplyTarget] = useState("")
+  const [replyTargetName, setreplyTargetName] = useState("")
+  const room = "liveChatRoom"
+  const [peopleOnline, setPeopleOnline] = useState(0)
+
+  console.log({ comment });
+
+  useEffect(() => {
+    if (isConnected) {
+
+      const handelConnection = () => {
+        socket.emit("joinRoom", room);
+      }
+
+      const handlePeopleOnline = (liveNum) => {
+        setPeopleOnline(liveNum)
+      }
+
+      const handleReceiveComment = (receiveComment) => {
+        setComment(prevComment => [...prevComment, {
+          id: receiveComment.id,
+          name: receiveComment.name,
+          profile: receiveComment.profile,
+          comment: receiveComment.comment,
+          reply: receiveComment.reply
+        }])
+      }
+
+      socket.on('connect', handelConnection)
+      socket.on('updateLiveNum', handlePeopleOnline)
+      socket.on('receiveComment', handleReceiveComment)
+
+      return () => {
+        socket.off('connect', handelConnection)
+        socket.off('updateLiveNum', handlePeopleOnline)
+        socket.off('receiveComment', handleReceiveComment)
+        socket.disconnect();
+      }
+    }
+  }, [])
+
+  const handleCommentSubmit = (e) => {
+    if (e.key === "Enter") {
+      const inputComment = e.target.value.trim();
+      let newId = comment.length + 1;
+      if (inputComment !== "") {
+        const newComment = {
+          id: newId,
+          name: "陳泰勒",
+          profile: "/images/face-id.png",
+          comment: inputComment,
+          reply: replyTarget,
+        }
+
+        if (isConnected) {
+          socket.emit('sendComment', newComment, room)
+          console.log({ newComment }, { room });
+          e.target.value = ""
+          setreplyTarget("")
+        } else {
+          console.log(`socket尚未連線`);
+        }
+      }
+    }
+  }
+
+  // 回覆功能
+
+  const handleClickIcon = (comment, name) => {
+    const target = comment;
+    const targetName = name;
+    setreplyTarget(target)
+    setreplyTargetName(targetName)
+  }
+
+  const handleReply = () => {
+    setreplyTarget("")
+    setreplyTargetName("")
+  }
+
+  const [blockComment, setBlockComment] = useState(true)
+  const [blockWord, setBlockWord] = useState([])
+
+  const handleBlockComment = () => {
+    setBlockComment(!blockComment)
+  }
+
+  const handleBlockWord = (e) => {
+    setBlockWord(e.target.value.split(","))
+    console.log(blockWord);
+  }
+
+  useEffect(() => {
+    const updatedComments = comment.map(c => {
+      let updatedComment = c.comment;
+      blockWord.forEach(word => {
+        if (updatedComment.includes(word)) {
+          updatedComment = updatedComment.replace(word, "***");
+        }
+      });
+      return { ...c, comment: updatedComment };
+    });
+    setComment(updatedComments);
+  }, [blockWord]);
+
+  const [pin, setPin] = useState(false)
+  const [pinnedComment, setPinnedComment] = useState("")
+  const [pinnedProfile, setPinnedProfile] = useState("")
+  const [pinnedName, setPinnedName] = useState("")
+
+  const handlePin = (pinP, pinN, pinC) => {
+    setPin(!pin)
+    setPinnedComment(pinC)
+    setPinnedName(pinN)
+    setPinnedProfile(pinP)
+  }
+
+  const handleUnpin = () => {
+    setPin(false)
+  }
+
+  // 點數功能
+
+
+  const [clickedIds, setClickedIds] = useState([])
+
+  useEffect(() => {
+    let newId = comment.length + 1;
+    const getPoints = setInterval(() => {
+      const newComment = {
+        id: newId,
+        name: "系統",
+        profile: "/images/treasure.png",
+        comment: "點頭貼，領點數！",
+      }
+      socket.emit('sendComment', newComment, room)
+    }, 100000);
+
+    return () => clearInterval(getPoints)
+  }, [])
+
+  const handleGetPoints = (profile, id) => {
+    if (profile == "/images/treasure.png" && !clickedIds.includes(id)) {
+      setPoints(prevPoint => prevPoint + 100)
+      setClickedIds(prevIds => [...prevIds, id])
+    }
+  }
 
   return (
     <div className={`${styles['chatbar']} ${showChatroom ? '' : styles.hidden_right}`}>
@@ -118,7 +283,6 @@ export default function ChatRoom({ showChatroom, onPhone, peopleOnline, comment,
           </div>
         </div>
       </div>
-
 
     </div>
   )
