@@ -13,13 +13,15 @@ export default function Stream() {
   const currentPath = window.location.pathname;
 
   useEffect(() => {
-    
+
     const newRole = currentPath === `/05-streaming/${streamerPath}` ? "isStreamer" : "isViewer";
     setRole(newRole)
   }, [streamerPath])
 
   useEffect(() => {
-    const myPeer = new Peer(undefined);
+    const myPeer = new Peer(undefined, {
+      port: 3002,
+    });
 
     if (role === "isStreamer") {
       const getMedia = async () => {
@@ -65,9 +67,9 @@ export default function Stream() {
 
       getMedia();
 
-      return () => {
-        myPeer.destroy();
-      };
+      // return () => {
+      //   myPeer.destroy();
+      // };
     }
   }, [role, room]);
 

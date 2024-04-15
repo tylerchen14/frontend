@@ -4,22 +4,13 @@ import Image from 'next/image';
 import { useEffect, useState } from "react";
 import styles from './chatRoom.module.css';
 
-export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEffectTab, points }) {
+export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEffectTab, points, comment, setComment }) {
 
   // handleClickIcon
   // comment
   // peopleOnline
   // pin
   // showChatroom, onPhone, pinnedProfile, pinnedName, handleUnpin, pinnedComment, replyTarget, replyTargetName, handleReply, handleCommentSubmit, , , handleBlockComment, blockComment, blockWord, handleBlockWord, handlePin,
-
-  // 留言功能
-  const [comment, setComment] = useState([{
-    id: 1,
-    name: "陳泰勒",
-    profile: "/images/face-id.png",
-    comment: "第一個留言",
-    reply: ""
-  }])
 
   const [replyTarget, setreplyTarget] = useState("")
   const [replyTargetName, setreplyTargetName] = useState("")
@@ -29,37 +20,23 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
   console.log({ comment });
 
   useEffect(() => {
-    if (isConnected) {
 
-      const handelConnection = () => {
-        socket.emit("joinRoom", room);
-      }
-
-      const handlePeopleOnline = (liveNum) => {
-        setPeopleOnline(liveNum)
-      }
-
-      const handleReceiveComment = (receiveComment) => {
-        setComment(prevComment => [...prevComment, {
-          id: receiveComment.id,
-          name: receiveComment.name,
-          profile: receiveComment.profile,
-          comment: receiveComment.comment,
-          reply: receiveComment.reply
-        }])
-      }
-
-      socket.on('connect', handelConnection)
-      socket.on('updateLiveNum', handlePeopleOnline)
-      socket.on('receiveComment', handleReceiveComment)
-
-      return () => {
-        socket.off('connect', handelConnection)
-        socket.off('updateLiveNum', handlePeopleOnline)
-        socket.off('receiveComment', handleReceiveComment)
-        socket.disconnect();
-      }
+    const handelConnection = () => {
+      socket.emit("joinRoom", room);
     }
+
+    const handlePeopleOnline = (liveNum) => {
+      setPeopleOnline(liveNum)
+    }
+
+    socket.on('connect', handelConnection)
+    socket.on('updateLiveNum', handlePeopleOnline)
+
+    return () => {
+      socket.off('updateLiveNum', handlePeopleOnline)
+      socket.disconnect();
+    }
+
   }, [])
 
   const handleCommentSubmit = (e) => {

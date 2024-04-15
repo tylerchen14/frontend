@@ -103,6 +103,21 @@ export default function Streaming() {
   const [eList, setEList] = useState(effectList)
 
 
+  const [comment, setComment] = useState([{
+    id: 1,
+    name: "陳泰勒",
+    profile: "/images/face-id.png",
+    comment: "第一個留言",
+    reply: ""
+  }])
+
+  useEffect(()=>{
+    socket.connect();
+    return () =>{
+     socket.disconnect();
+    }
+ },[])
+
   useEffect(() => {
     const onConnect = () => {
       setIsConnected(true);
@@ -114,12 +129,27 @@ export default function Streaming() {
       console.log('連線解除');
     }
 
+    
+    const handleReceiveComment = (receiveComment) => {
+      console.log('handleReceiveComment');
+
+      setComment(prevComment => [...prevComment, {
+        id: receiveComment.id,
+        name: receiveComment.name,
+        profile: receiveComment.profile,
+        comment: receiveComment.comment,
+        reply: receiveComment.reply
+      }])
+    }
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
+    socket.on('receiveComment', handleReceiveComment);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
+      socket.off('receiveComment', handleReceiveComment);
     };
   }, []);
 
@@ -242,6 +272,8 @@ export default function Streaming() {
 
         {/* 右欄 */}
         <ChatRoom
+          comment={comment}
+          setComment={setComment}
           isConnected={isConnected}
           showChatroom={showChatroom}
           onPhone={onPhone}
