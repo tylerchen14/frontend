@@ -10,7 +10,7 @@ export default function StepMap() {
   const router = useRouter()
 
   const [turnPage, setTurnPage] = useState([{
-    url: '/01-check-role'
+    url: '/'
   }, {
     url: '/02-check-webcam-source'
   }, {
