@@ -102,7 +102,7 @@ export default function Streaming() {
   const [showEffect, setShowEffect] = useState(false)
   const [eList, setEList] = useState(effectList)
 
-
+  // 留言功能
   const [comment, setComment] = useState([{
     id: 1,
     name: "陳泰勒",
@@ -111,12 +111,12 @@ export default function Streaming() {
     reply: ""
   }])
 
-  useEffect(()=>{
+  useEffect(() => {
     socket.connect();
-    return () =>{
-     socket.disconnect();
+    return () => {
+      socket.disconnect();
     }
- },[])
+  }, [])
 
   useEffect(() => {
     const onConnect = () => {
@@ -126,12 +126,9 @@ export default function Streaming() {
 
     const onDisconnect = () => {
       setIsConnected(false);
-      console.log('連線解除');
     }
 
-    
     const handleReceiveComment = (receiveComment) => {
-      console.log('handleReceiveComment');
 
       setComment(prevComment => [...prevComment, {
         id: receiveComment.id,
@@ -253,8 +250,6 @@ export default function Streaming() {
 
         {/* 中欄 */}
         <StreamScreen
-          setShowChatroom={setShowChatroom}
-          setShowSidebar={setShowSidebar}
           isConnected={isConnected}
           onPhone={onPhone}
           handleSidebarHide={handleSidebarHide}
@@ -267,7 +262,6 @@ export default function Streaming() {
           showGift={showGift}
           eList={eList}
           handleGiveEffect={handleGiveEffect}
-          handleShowGift={handleShowGift}
         ></StreamScreen>
 
         {/* 右欄 */}
@@ -279,22 +273,7 @@ export default function Streaming() {
           onPhone={onPhone}
           handleEffectTab={handleEffectTab}
           points={points}
-        // comment={comment}
-        // pin={pin}
-        // pinnedProfile={pinnedProfile}
-        // pinnedName={pinnedName}
-        // handleUnpin={handleUnpin}
-        // pinnedComment={pinnedComment}
-        // replyTarget={replyTarget}
-        // replyTargetName={replyTargetName}
-        // handleReply={handleReply}
-        // handleCommentSubmit={handleCommentSubmit}
-        // handleBlockComment={handleBlockComment}
-        // blockComment={blockComment}
-        // blockWord={blockWord}
-        // handleBlockWord={handleBlockWord}
-        // handlePin={handlePin}
-        // handleClickIcon={handleClickIcon}
+          setPoints={setPoints}
         ></ChatRoom>
       </div>
     </>

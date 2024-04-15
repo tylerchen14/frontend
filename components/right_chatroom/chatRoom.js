@@ -4,13 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from "react";
 import styles from './chatRoom.module.css';
 
-export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEffectTab, points, comment, setComment }) {
-
-  // handleClickIcon
-  // comment
-  // peopleOnline
-  // pin
-  // showChatroom, onPhone, pinnedProfile, pinnedName, handleUnpin, pinnedComment, replyTarget, replyTargetName, handleReply, handleCommentSubmit, , , handleBlockComment, blockComment, blockWord, handleBlockWord, handlePin,
+export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEffectTab, points, comment, setComment, setPoints }) {
 
   const [replyTarget, setreplyTarget] = useState("")
   const [replyTargetName, setreplyTargetName] = useState("")
@@ -33,6 +27,8 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
     socket.on('updateLiveNum', handlePeopleOnline)
 
     return () => {
+    socket.off('connect', handelConnection)
+
       socket.off('updateLiveNum', handlePeopleOnline)
       socket.disconnect();
     }

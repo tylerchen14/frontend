@@ -8,7 +8,7 @@ const StreamContent = dynamic(() => import('@/components/stream/stream'), {
   ssr: false,
 })
 
-export default function StreamScreen({ isConnected, onPhone, handleSidebarHide, showSidebar, handleChatroom, showChatroom, showEffect, gList, handleGiveGift, showGift, eList, handleGiveEffect, setShowSidebar, setShowChatroom, handleShowGift }) {
+export default function StreamScreen({ isConnected, onPhone, handleSidebarHide, showSidebar, handleChatroom, showChatroom, showEffect, gList, handleGiveGift, showGift, eList, handleGiveEffect, }) {
 
 
   return (
