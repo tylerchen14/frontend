@@ -1,8 +1,9 @@
 import { socket } from "@/src/socket";
 import { RiCloseFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiSpam3Line, RiStoreLine, RiUser3Fill, RiUserFill } from "@remixicon/react";
 import Image from 'next/image';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import styles from './chatRoom.module.css';
+import usePoint from "@/context/use-points";
 
 export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEffectTab, points, comment, setComment, setPoints }) {
 
@@ -10,8 +11,7 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
   const [replyTargetName, setreplyTargetName] = useState("")
   const room = "liveChatRoom"
   const [peopleOnline, setPeopleOnline] = useState(0)
-
-  console.log({ comment });
+  const { pts, setPts } = usePoint()
 
   useEffect(() => {
 
@@ -37,13 +37,13 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
 
   let isComposing = false;
 
-const handleComposition = (e) => {
-  if (e.type === "compositionend") {
-    isComposing = false;
-  } else {
-    isComposing = true;
+  const handleComposition = (e) => {
+    if (e.type === "compositionend") {
+      isComposing = false;
+    } else {
+      isComposing = true;
+    }
   }
-}
 
   const handleCommentSubmit = (e) => {
     if (e.key === "Enter" && !isComposing) {
@@ -127,7 +127,6 @@ const handleComposition = (e) => {
 
   // 點數功能
 
-
   const [clickedIds, setClickedIds] = useState([])
 
   useEffect(() => {
@@ -147,8 +146,20 @@ const handleComposition = (e) => {
 
   const handleGetPoints = (profile, id) => {
     if (profile == "/images/treasure.png" && !clickedIds.includes(id)) {
-      setPoints(prevPoint => prevPoint + 100)
-      setClickedIds(prevIds => [...prevIds, id])
+
+      let userId=1
+      fetch('http://localhost:3001/add-point', {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(r => r.json())
+        .then(data => {
+          console.log(`新增 ${data} 點數`);
+          setClickedIds(prevIds => [...prevIds, id]);
+        })
     }
   }
 
@@ -228,7 +239,7 @@ const handleComposition = (e) => {
           <input type="text" placeholder='輸入內容' className='w-full p-1 pl-2 rounded text-black'
             onKeyDown={handleCommentSubmit}
             onCompositionStart={handleComposition}
-    onCompositionEnd={handleComposition}
+            onCompositionEnd={handleComposition}
             maxLength={100}
           />
 
@@ -242,7 +253,7 @@ const handleComposition = (e) => {
               className='cursor-pointer'
               onClick={handleEffectTab}
             ></RiMoneyDollarCircleFill>
-            <div>{points} pts</div>
+            <div>{pts} pts</div>
           </div>
           <div className='flex gap-2'>
             {onPhone ? <>

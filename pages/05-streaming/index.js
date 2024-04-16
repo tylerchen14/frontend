@@ -3,12 +3,14 @@ import MemberList from '@/components/left_memberList/memberList';
 import ChatRoom from '@/components/right_chatroom/chatRoom';
 import { socket } from '@/src/socket';
 import styles from '@/styles/streaming.module.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import usePoint from '@/context/use-points';
+
 
 export default function Streaming() {
-
+  const { pts, setPts } = usePoint()
   const [isConnected, setIsConnected] = useState(socket.connected);
-  const [points, setPoints] = useState(300)
+  // const [points, setPoints] = useState(300)
   const [onPhone, setOnPhone] = useState(false);
   const [showChatroom, setShowChatroom] = useState(true);
   const [showSidebar, setShowSidebar] = useState(true);
@@ -73,24 +75,28 @@ export default function Streaming() {
   ]
   const effectList = [
     {
+      effect_id: 1,
       name: "吸睛文字",
       src: "/images/marker.png",
       price: "100",
       grayscale: false,
     },
     {
+      effect_id: 2,
       name: "替換背景",
       src: "/images/neon.png",
       price: "200",
       grayscale: false,
     },
     {
+      effect_id: 3,
       name: "改換字體",
       src: "/images/font.png",
       price: "300",
       grayscale: false,
     },
     {
+      effect_id: 4,
       name: "釘選留言",
       src: "/images/pin.png",
       price: "400",
@@ -222,15 +228,37 @@ export default function Streaming() {
     let effect = Number(price)
 
     const updateList = eList.map(item => {
-      return { ...item, grayscale: item.name == name && points < effect }
+      return { ...item, grayscale: item.name == name && pts < effect }
     })
     setEList(updateList)
 
-    if (points >= effect) {
-      setPoints(prevP => prevP - effect)
+    if (pts >= effect) {
+      setPts(prevP => prevP - effect)
     } else {
       return
     }
+
+    const selectedEffect = eList.find(item => item.name === name);
+
+    const effectId = selectedEffect.effect_id;
+;
+
+    fetch('http://localhost:3001/use-point', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId: 1,
+        points: effect,
+        source: effectId,
+      }),
+    })
+      .then(r => r.json())
+      .then(data =>
+        console.log(`減少 ${data} 點數`)
+      )
+
   }
 
 
@@ -272,8 +300,8 @@ export default function Streaming() {
           showChatroom={showChatroom}
           onPhone={onPhone}
           handleEffectTab={handleEffectTab}
-          points={points}
-          setPoints={setPoints}
+        // points={points}
+        // setPoints={setPoints}
         ></ChatRoom>
       </div>
     </>

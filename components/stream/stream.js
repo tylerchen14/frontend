@@ -2,6 +2,7 @@ import { Peer } from "peerjs";
 import { useEffect, useRef, useState } from 'react';
 import { socket } from '@/src/socket';
 
+
 export default function Stream() {
 
   const streamerPath = "streamer"
