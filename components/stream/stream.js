@@ -33,21 +33,21 @@ export default function Stream() {
       });
 
       // streamer
-      // socket.on('streamer-joined', streamerId => {
-      //   const call = myPeer.call(streamerId, myStream);
-      //   call.on('stream', stream => addStream(userVidsRef.current, stream)
-      //   );
-      // });
+      socket.on('streamer-joined', streamerId => {
+        const call = myPeer.call(streamerId, myStream);
+        call.on('stream', stream => addStream(userVidsRef.current, stream)
+        );
+      });
 
       // viewer
-      // socket.on('viewer-joined', viewerId => {
-      //   const call = myPeer.call(viewerId, myStream);
-      //   addStream(userVidsRef.current, myStream)
+      socket.on('viewer-joined', viewerId => {
+        const call = myPeer.call(viewerId, myStream);
+        addStream(userVidsRef.current, myStream)
 
-      //   call.on('close', () => {
-      //     console.log(`用戶 ${viewerId} 離開聊天室`);
-      //   });
-      // });
+        call.on('close', () => {
+          console.log(`用戶 ${viewerId} 離開聊天室`);
+        });
+      });
 
       myPeer.on('error', function(err) {
         console.log('PeerJS error:', err);

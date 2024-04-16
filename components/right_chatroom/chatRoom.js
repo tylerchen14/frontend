@@ -27,7 +27,7 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
     socket.on('updateLiveNum', handlePeopleOnline)
 
     return () => {
-    socket.off('connect', handelConnection)
+      socket.off('connect', handelConnection)
 
       socket.off('updateLiveNum', handlePeopleOnline)
       socket.disconnect();
@@ -35,10 +35,20 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
 
   }, [])
 
+  let isComposing = false;
+
+const handleComposition = (e) => {
+  if (e.type === "compositionend") {
+    isComposing = false;
+  } else {
+    isComposing = true;
+  }
+}
+
   const handleCommentSubmit = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !isComposing) {
       const inputComment = e.target.value.trim();
-      let newId = comment.length + 1;
+      let newId = Date.now();;
       if (inputComment !== "") {
         const newComment = {
           id: newId,
@@ -121,7 +131,7 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
   const [clickedIds, setClickedIds] = useState([])
 
   useEffect(() => {
-    let newId = comment.length + 1;
+    let newId = Date.now();;
     const getPoints = setInterval(() => {
       const newComment = {
         id: newId,
@@ -160,12 +170,12 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
         <div className={styles.chat}>
           {comment.map((c) => {
             return (
-              <div key={c.id} className='flex flex-col items-start mb-3'>
+              <div key={c.id} className='flex flex-col items-start mb-4'>
 
                 {c.reply && (
-                  <div className={`flex text-sm ml-6 mb-1`}>
+                  <div className={`flex text-xs ml-6 `}>
                     <RiReplyFill className="h-4" />
-                    <div className='w-[200px] break-words'>{c.reply}</div>
+                    <div className='w-[200px] break-words'>{c.name}: {c.reply}</div>
                   </div>)}
 
                 <div className='flex justify-between w-full text-center'>
@@ -217,6 +227,8 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
         <div className={styles['comment-bar']}>
           <input type="text" placeholder='輸入內容' className='w-full p-1 pl-2 rounded text-black'
             onKeyDown={handleCommentSubmit}
+            onCompositionStart={handleComposition}
+    onCompositionEnd={handleComposition}
             maxLength={100}
           />
 
