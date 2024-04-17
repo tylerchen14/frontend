@@ -1,12 +1,12 @@
 import Level from '@/components/level/level';
 import Member from '@/components/member/member';
+import useToggle from '@/context/use-toggle-show';
 import { RiCornerUpLeftFill, RiSearchLine } from "@remixicon/react";
 import styles from './memberList.module.css';
-import useToggle from '@/context/use-toggle-show';
 
 export default function MemberList({ totalBonus }) {
 
-  const { onPhone, showChatroom, showSidebar, showGift, showMember, handleChatroom, handleSidebarHide, handleShowGift, handleShowMemberlist } = useToggle()
+  const { onPhone, showSidebar, showMember, handleShowMemberlist } = useToggle()
 
   return (
     <div className={`${styles['sidebar']} ${showSidebar ? '' : styles.hidden_left} ${!onPhone ? "" : showMember ? styles.show_up : styles.hidden_down}`}>

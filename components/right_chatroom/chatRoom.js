@@ -1,16 +1,16 @@
+import useE from "@/context/use-effect";
 import usePoint from "@/context/use-points";
+import useToggle from "@/context/use-toggle-show";
 import { socket } from "@/src/socket";
 import { RiCloseFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiSpam3Line, RiStoreLine, RiUser3Fill, RiUserFill } from "@remixicon/react";
 import Image from 'next/image';
 import { useEffect, useRef, useState } from "react";
 import { API_SERVER } from "../config/api-path";
 import styles from './chatRoom.module.css';
-import useE from "@/context/use-effect";
-import useToggle from "@/context/use-toggle-show";
 
 export default function ChatRoom({ isConnected, comment, setComment }) {
-  const { onPhone, showChatroom, showSidebar, showGift, showMember, handleChatroom, handleSidebarHide, handleShowGift, handleShowMemberlist } = useToggle()
-  const { eList, handleEffectTab, handleGiveEffect, showEffect } = useE()
+  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist } = useToggle()
+  const { handleEffectTab } = useE()
   const [replyTarget, setreplyTarget] = useState("")
   const [replyTargetName, setreplyTargetName] = useState("")
   const room = "liveChatRoom"

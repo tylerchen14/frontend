@@ -1,6 +1,8 @@
 import Title from '@/components/title/title';
 import useAni from '@/context/use-animate';
 import useE from '@/context/use-effect';
+import useGift from '@/context/use-gift';
+import useToggle from '@/context/use-toggle-show';
 import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiCoinFill } from "@remixicon/react";
 import { AnimatePresence, motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
@@ -8,17 +10,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import GiftShow from '../giftShow/giftShow';
 import styles from './streamScreen.module.css';
-import useToggle from '@/context/use-toggle-show';
-import useGift from '@/context/use-gift';
 const StreamContent = dynamic(() => import('@/components/stream/stream'), {
   ssr: false,
 })
 
 export default function StreamScreen({ isConnected }) {
-  const { totalBonus, gList, giftRain, handleGiveGift, setGiftRain } = useGift()
-  const { onPhone, showChatroom, showSidebar, showGift, showMember, handleChatroom, handleSidebarHide, handleShowGift, handleShowMemberlist } = useToggle()
-  const { eList, handleEffectTab, handleGiveEffect, showEffect } = useE()
-  const { isAnimating, setIsAnimating } = useAni()
+  const { gList, giftRain, handleGiveGift } = useGift()
+  const { onPhone, showChatroom, showSidebar, showGift, handleChatroom, handleSidebarHide } = useToggle()
+  const { eList, handleGiveEffect, showEffect } = useE()
+  const { isAnimating } = useAni()
   console.log(`第二次${isAnimating}`);
 
 
