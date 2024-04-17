@@ -5,9 +5,12 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from "react";
 import { API_SERVER } from "../config/api-path";
 import styles from './chatRoom.module.css';
+import useE from "@/context/use-effect";
+import useToggle from "@/context/use-toggle-show";
 
-export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEffectTab, points, comment, setComment, setPoints }) {
-
+export default function ChatRoom({ isConnected, comment, setComment }) {
+  const { onPhone, showChatroom, showSidebar, showGift, showMember, handleChatroom, handleSidebarHide, handleShowGift, handleShowMemberlist } = useToggle()
+  const { eList, handleEffectTab, handleGiveEffect, showEffect } = useE()
   const [replyTarget, setreplyTarget] = useState("")
   const [replyTargetName, setreplyTargetName] = useState("")
   const room = "liveChatRoom"
@@ -98,7 +101,6 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
   }
 
   // 回覆功能
-
   const handleClickIcon = (comment, name) => {
     const target = comment;
     const targetName = name;
@@ -174,7 +176,6 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
   })
 
   // 點數功能
-
   const [clickedIds, setClickedIds] = useState([])
 
   useEffect(() => {
@@ -210,6 +211,10 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
         })
     }
   }
+
+
+
+
 
   return (
     <div className={`${styles['chatbar']} ${showChatroom ? '' : styles.hidden_right}`}>

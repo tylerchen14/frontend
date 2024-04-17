@@ -30,6 +30,8 @@ export default function GiftShow({ giftrain, size }) {
     }
 
   }
+  console.log(`第三次${isAnimating}`);
+
 
   return (
     <motion.div
