@@ -56,6 +56,12 @@
   display: block
 }
 
+.hidden_left {
+  opacity: 0;
+  transform: translateX(-100%);
+  width: 0%;
+}
+
 /* 開始 */
 @media (max-width: 768px) {
 
