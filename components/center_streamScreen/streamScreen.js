@@ -1,18 +1,32 @@
 import Title from '@/components/title/title';
+import useAni from '@/context/use-animate';
 import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiCoinFill } from "@remixicon/react";
+import { AnimatePresence, motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import GiftShow from '../giftShow/giftShow';
 import styles from './streamScreen.module.css';
 const StreamContent = dynamic(() => import('@/components/stream/stream'), {
   ssr: false,
 })
 
-export default function StreamScreen({ isConnected, onPhone, handleSidebarHide, showSidebar, handleChatroom, showChatroom, showEffect, gList, handleGiveGift, showGift, eList, handleGiveEffect, }) {
+export default function StreamScreen({ isConnected, onPhone, handleSidebarHide, showSidebar, handleChatroom, showChatroom, showEffect, gList, handleGiveGift, showGift, eList, handleGiveEffect, giftRain, }) {
 
+  const { isAnimating, setIsAnimating } = useAni()
 
   return (
     <div className={styles['mainframe']}>
+
+      <AnimatePresence>
+        {giftRain.map(g => {
+          return <GiftShow
+            key={g.id + '-' + new Date().getTime()}
+            giftrain={g.gift}
+            size={g.size}
+          ></GiftShow>
+        })}
+      </AnimatePresence>
 
       {/* 左邊收起按鈕 */}
       <div className={`${styles['arrow-box-left']} ${onPhone ? "hidden" : ""}`}
@@ -44,6 +58,8 @@ export default function StreamScreen({ isConnected, onPhone, handleSidebarHide, 
       {/* 標題敘述 -手機 */}
       {onPhone ? <Title></Title> : ""}
 
+
+
       {/* 禮物框 */}
       {showEffect ?
         <>
@@ -51,16 +67,21 @@ export default function StreamScreen({ isConnected, onPhone, handleSidebarHide, 
             {eList.map((c, i) => {
               return (
                 <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer " key={i}>
-
-                  <Image
-                    width={44}
-                    height={44}
-                    src={c.src}
-                    className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
-                    alt={c.name}
-                    onClick={() => { handleGiveEffect(c.price, c.name) }}
-                  ></Image>
-
+                  <motion.div
+                    whileHover={{
+                      rotate: -10,
+                      scale: 1.3
+                    }}
+                  >
+                    <Image
+                      width={44}
+                      height={44}
+                      src={c.src}
+                      className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
+                      alt={c.name}
+                      onClick={() => { handleGiveEffect(c.price, c.name) }}
+                    ></Image>
+                  </motion.div>
                   <div className="text-sm">{c.name}</div>
                   <div className="flex gap-0.5 items-center">
                     <RiCoinFill style={{ color: "#fff400" }} className='mt-1 h-4'></RiCoinFill>
@@ -77,15 +98,21 @@ export default function StreamScreen({ isConnected, onPhone, handleSidebarHide, 
             {gList.map((c, i) => {
               return (
                 <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer" key={i}>
-
-                  <Image
-                    width={44}
-                    height={44}
-                    src={c.src}
-                    className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
-                    alt={c.name}
-                    onClick={() => { handleGiveGift(c.price, c.chance, c.name) }}
-                  ></Image>
+                  <motion.div
+                    whileHover={{
+                      rotate: -10,
+                      scale: 1.3
+                    }}
+                  >
+                    <Image
+                      width={44}
+                      height={44}
+                      src={c.src}
+                      className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
+                      alt={c.name}
+                      onClick={isAnimating ? null : () => handleGiveGift(c.price, c.chance, c.name, c.src)}
+                    ></Image>
+                  </motion.div>
 
                   <div className='text-sm'>{c.name}({c.chance})</div>
                   <div className="flex items-center">
@@ -99,7 +126,9 @@ export default function StreamScreen({ isConnected, onPhone, handleSidebarHide, 
                 </div>
               )
             })}
+
           </div>
+
         </>}
 
     </div>

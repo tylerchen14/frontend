@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useContext, createContext } from 'react'
+import { API_SERVER } from '@/components/config/api-path'
 
 const PointContext = createContext()
 
@@ -9,7 +10,7 @@ export function PointContextProvider({ children }) {
 
   const myPoints = async () => {
     try {
-      const r = await fetch("http://localhost:3001/05-streaming/u-point/1", {
+      const r = await fetch(`${API_SERVER}/05-streaming/u-point/1`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -24,7 +25,7 @@ export function PointContextProvider({ children }) {
 
   useEffect(() => {
     myPoints()
-    const intervalId = setInterval(myPoints, 100);
+    const intervalId = setInterval(myPoints, 1000);
     return () => clearInterval(intervalId);
   }, [])
 

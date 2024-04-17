@@ -1,16 +1,17 @@
 import StreamScreen from '@/components/center_streamScreen/streamScreen';
+import { API_SERVER } from '@/components/config/api-path';
 import MemberList from '@/components/left_memberList/memberList';
 import ChatRoom from '@/components/right_chatroom/chatRoom';
+import useAni from '@/context/use-animate';
+import usePoint from '@/context/use-points';
 import { socket } from '@/src/socket';
 import styles from '@/styles/streaming.module.css';
-import { useEffect, useState, useContext } from 'react';
-import usePoint from '@/context/use-points';
-
+import { useEffect, useState } from 'react';
 
 export default function Streaming() {
   const { pts, setPts } = usePoint()
+  const { isAnimating, setIsAnimating } = useAni()
   const [isConnected, setIsConnected] = useState(socket.connected);
-  // const [points, setPoints] = useState(300)
   const [onPhone, setOnPhone] = useState(false);
   const [showChatroom, setShowChatroom] = useState(true);
   const [showSidebar, setShowSidebar] = useState(true);
@@ -107,6 +108,7 @@ export default function Streaming() {
   const [gList, setGList] = useState(giftList)
   const [showEffect, setShowEffect] = useState(false)
   const [eList, setEList] = useState(effectList)
+  const [giftRain, setGiftRain] = useState([])
 
   // 留言功能
   const [comment, setComment] = useState([{
@@ -188,15 +190,13 @@ export default function Streaming() {
   }
 
   // 顯示成員列表（手機）
-
-
   const handleShowMemberlist = () => {
     setShowMember(!showMember)
   }
 
   // 禮物列表
 
-  const handleGiveGift = (price, chance, name) => {
+  const handleGiveGift = (price, chance, name, pic) => {
     let gift = Number(price)
 
     const updateList = gList.map(item => {
@@ -216,6 +216,20 @@ export default function Streaming() {
     } else {
       return
     }
+
+    if(isAnimating){
+      return;
+    }
+    
+    setGiftRain([]);
+    setIsAnimating(true);
+
+    const createGiftArray = Array.from({ length: 30 }).map((_, i) => ({
+      id: i,
+      gift: pic,
+      size: `${parseInt(Math.random() * (70 - 10) + 50)}`
+    }))
+    setTimeout(() => setGiftRain(createGiftArray), 0);
   }
 
   // 效果列表
@@ -241,9 +255,9 @@ export default function Streaming() {
     const selectedEffect = eList.find(item => item.name === name);
 
     const effectId = selectedEffect.effect_id;
-;
+    ;
 
-    fetch('http://localhost:3001/use-point', {
+    fetch(`${API_SERVER}/use-point`, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'
@@ -258,10 +272,7 @@ export default function Streaming() {
       .then(data =>
         console.log(`減少 ${data} 點數`)
       )
-
   }
-
-
 
   return (
     <>
@@ -290,6 +301,8 @@ export default function Streaming() {
           showGift={showGift}
           eList={eList}
           handleGiveEffect={handleGiveEffect}
+          giftRain={giftRain}
+          setGiftRain={setGiftRain}
         ></StreamScreen>
 
         {/* 右欄 */}

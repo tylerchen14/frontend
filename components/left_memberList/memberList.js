@@ -1,9 +1,9 @@
 import Level from '@/components/level/level';
 import Member from '@/components/member/member';
 import { RiCornerUpLeftFill, RiSearchLine } from "@remixicon/react";
-import styles from './memberList.module.css'
+import styles from './memberList.module.css';
 
-export default function MemberList({showSidebar, onPhone, totalBonus, showMember}) {
+export default function MemberList({ showSidebar, onPhone, totalBonus, showMember }) {
   return (
     <div className={`${styles['sidebar']} ${showSidebar ? '' : styles.hidden_left} ${!onPhone ? "" : showMember ? styles.show_up : styles.hidden_down}`}>
 

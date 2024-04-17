@@ -1,9 +1,10 @@
+import usePoint from "@/context/use-points";
 import { socket } from "@/src/socket";
 import { RiCloseFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiSpam3Line, RiStoreLine, RiUser3Fill, RiUserFill } from "@remixicon/react";
 import Image from 'next/image';
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useRef, useState } from "react";
+import { API_SERVER } from "../config/api-path";
 import styles from './chatRoom.module.css';
-import usePoint from "@/context/use-points";
 
 export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEffectTab, points, comment, setComment, setPoints }) {
 
@@ -12,6 +13,14 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
   const room = "liveChatRoom"
   const [peopleOnline, setPeopleOnline] = useState(0)
   const { pts, setPts } = usePoint()
+  const [pin, setPin] = useState(false)
+  const [pinnedData, setPinnedData] = useState({
+    commentId: null,
+    comment: "",
+    profile: "",
+    name: "",
+  })
+  const handleCommentFocus = useRef()
 
   useEffect(() => {
 
@@ -45,15 +54,33 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
     }
   }
 
+  const [userProfile, setUserProfile] = useState("/images/face-id.png")
+
+  const getUserProfile = async () => {
+    const r = await fetch(`${API_SERVER}/user-pic/12`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    const data = await r.json()
+    setUserProfile(data[0].profile_pic_url)
+  }
+  useEffect(() => {
+    getUserProfile()
+  }, [comment])
+
+
   const handleCommentSubmit = (e) => {
     if (e.key === "Enter" && !isComposing) {
       const inputComment = e.target.value.trim();
       let newId = Date.now();;
+
       if (inputComment !== "") {
         const newComment = {
           id: newId,
           name: "陳泰勒",
-          profile: "/images/face-id.png",
+          profile: userProfile,
           comment: inputComment,
           reply: replyTarget,
         }
@@ -77,6 +104,7 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
     const targetName = name;
     setreplyTarget(target)
     setreplyTargetName(targetName)
+    handleCommentFocus.current.focus()
   }
 
   const handleReply = () => {
@@ -109,21 +137,41 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
     setComment(updatedComments);
   }, [blockWord]);
 
-  const [pin, setPin] = useState(false)
-  const [pinnedComment, setPinnedComment] = useState("")
-  const [pinnedProfile, setPinnedProfile] = useState("")
-  const [pinnedName, setPinnedName] = useState("")
 
-  const handlePin = (pinP, pinN, pinC) => {
+  // 置頂功能
+  useEffect(() => {
+    socket.on('pinnedAll', (pinI, pinP, pinN, pinC) => {
+      setPin(true)
+      setPinnedData({ commentId: pinI, profile: pinP, name: pinN, comment: pinC })
+    })
+
+    return () => {
+      socket.off('pinnedAll');
+    };
+  }, [])
+
+  const handlePin = (pinI, pinP, pinN, pinC) => {
     setPin(!pin)
-    setPinnedComment(pinC)
-    setPinnedName(pinN)
-    setPinnedProfile(pinP)
+    setPinnedData({
+      commentId: pinI,
+      comment: pinC,
+      profile: pinP,
+      name: pinN,
+    })
+
+    socket.emit('pinnedComment', pinI, pinP, pinN, pinC);
   }
 
   const handleUnpin = () => {
     setPin(false)
+    socket.emit('unpinComment')
   }
+
+  useEffect(() => {
+    socket.on('unpinAll', () => {
+      setPin(false)
+    })
+  })
 
   // 點數功能
 
@@ -147,8 +195,8 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
   const handleGetPoints = (profile, id) => {
     if (profile == "/images/treasure.png" && !clickedIds.includes(id)) {
 
-      let userId=1
-      fetch('http://localhost:3001/add-point', {
+      let userId = 1
+      fetch(`${API_SERVER}/add-point`, {
         method: 'POST',
         body: JSON.stringify({ userId }),
         headers: {
@@ -197,7 +245,7 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
                     <div className='shrink-0'>{c.name}</div>
                   </div>
                   <div className='flex w-6/12 justify-end'>
-                    <RiPushpinFill className={styles.icon_reply} onClick={() => { handlePin(c.profile, c.name, c.comment) }} />
+                    <RiPushpinFill className={styles.icon_reply} onClick={() => { handlePin(c.id, c.profile, c.name, c.comment) }} />
                     <RiReplyFill
                       className={styles.icon_reply}
                       onClick={() => { handleClickIcon(c.comment, c.name) }}
@@ -215,14 +263,14 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
         <div className={`flex flex-col items-start mb-2 ${pin ? "" : "hidden"}`}>
           <div className='flex justify-between w-full text-center'>
             <div className='flex w-6/12 gap-2 items-center justify-start'>
-              <Image width={30} height={30} alt='大頭貼' src={pinnedProfile} className='bg-white rounded-full p-1' />
-              <div className='shrink-0'>{pinnedName}</div>
+              <Image width={30} height={30} alt='大頭貼' src={pinnedData.profile} className='bg-white rounded-full p-1' />
+              <div className='shrink-0'>{pinnedData.name}</div>
             </div>
             <div className='w-6/12 flex justify-end items-center'>
               <RiCloseFill className=' cursor-pointer h-5' onClick={handleUnpin}></RiCloseFill>
             </div>
           </div>
-          <div className='w-[210px] ml-9 break-words'>{pinnedComment}</div>
+          <div className='w-[210px] ml-9 break-words'>{pinnedData.comment}</div>
         </div>
 
         <hr className="border-dotted mb-1" />
@@ -241,6 +289,7 @@ export default function ChatRoom({ isConnected, showChatroom, onPhone, handleEff
             onCompositionStart={handleComposition}
             onCompositionEnd={handleComposition}
             maxLength={100}
+            ref={handleCommentFocus}
           />
 
           <button className={styles['sticker-comment']}>{onPhone ? "送出" : ""}</button>
