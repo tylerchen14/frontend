@@ -21,7 +21,6 @@ export default function StreamScreen({ isConnected }) {
   const { isAnimating } = useAni()
   console.log(`第二次${isAnimating}`);
 
-
   return (
     <div className={styles['mainframe']}>
 

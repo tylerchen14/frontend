@@ -212,10 +212,6 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
     }
   }
 
-
-
-
-
   return (
     <div className={`${styles['chatbar']} ${showChatroom ? '' : styles.hidden_right}`}>
       <div className={styles['chatbar-content']}>
