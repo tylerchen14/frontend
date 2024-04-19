@@ -1,6 +1,6 @@
-import useE from "@/context/use-effect";
-import usePoint from "@/context/use-points";
-import useToggle from "@/context/use-toggle-show";
+import useE from "@/contexts/use-effect";
+import usePoint from "@/contexts/use-points";
+import useToggle from "@/contexts/use-toggle-show";
 import { socket } from "@/src/socket";
 import { RiCloseFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiSpam3Line, RiStoreLine, RiUser3Fill, RiUserFill } from "@remixicon/react";
 import Image from 'next/image';

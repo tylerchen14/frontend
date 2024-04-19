@@ -1,7 +1,7 @@
 import StreamScreen from '@/components/center_streamScreen/streamScreen';
 import MemberList from '@/components/left_memberList/memberList';
 import ChatRoom from '@/components/right_chatroom/chatRoom';
-import useGift from '@/context/use-gift';
+import useGift from '@/contexts/use-gift';
 import { socket } from '@/src/socket';
 import styles from '@/styles/streaming.module.css';
 import { useEffect, useState } from 'react';

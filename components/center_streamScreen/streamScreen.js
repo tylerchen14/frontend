@@ -1,8 +1,8 @@
 import Title from '@/components/title/title';
-import useAni from '@/context/use-animate';
-import useE from '@/context/use-effect';
-import useGift from '@/context/use-gift';
-import useToggle from '@/context/use-toggle-show';
+import useAni from '@/contexts/use-animate';
+import useE from '@/contexts/use-effect';
+import useGift from '@/contexts/use-gift';
+import useToggle from '@/contexts/use-toggle-show';
 import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiCoinFill } from "@remixicon/react";
 import { AnimatePresence, motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
