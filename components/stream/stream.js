@@ -8,7 +8,7 @@ export default function Stream() {
   const [role, setRole] = useState("")
   const [streamRoom, setStreamRoom] = useState('')
   const [streamId, setStreamId] = useState('');
-  const [viewerId, setViewerId] = useState("")
+  const [viewerId, setViewerId] = useState([])
   const localVidsRef = useRef(null)
   const remoteVidsRef = useRef(null)
   const peer = useRef()
@@ -26,49 +26,70 @@ export default function Stream() {
   }, [router.isReady, router.query.streamerPath]);
 
   const createPeer = (role) => {
-    peer.current = new Peer();
-    peer.current.on('open', (id) => {
-      console.log(`我的PeerID是${id}`);
-      console.log(`我的身份是${role}`);
-      socket.emit('check-role', id, role);
-    });
+    if (!peer.current) {
+      peer.current = new Peer();
+      peer.current.on('open', (id) => {
+        console.log(`我的PeerID是${id}`);
+        console.log(`我的身份是${role}`);
+        socket.emit('check-role', id, role);
+      });
 
-    socket.on('streamerStart', (id) => {
-      setStreamId(id)
-    })
-
-    socket.on('viewerGo', (id) => {
-      setViewerId(id)
-    })
-
-    if (role === 'isStreamer') {
-      navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
+      socket.on('streamerStart', (id) => {
+        setStreamId(id)
       })
-        .then(stream => {
-          localVidsRef.current.srcObject = stream;
-          localVidsRef.current.play();
-          localVidsRef.current.muted = true
 
-          peer.current.on('call', (call) => {
-            call.answer(stream)
+      socket.on('viewerGo', (id) => {
+        setViewerId(prev => {
+          const newViewerId = [...prev, id]
+          console.log(`觀眾列表：${newViewerId}`);
+          return newViewerId
+        })
+      })
 
-            call.on('stream', stream => {
-              localVidsRef.current.srcObject = stream
-              localVidsRef.current.play();
+      if (role === 'isStreamer') {
+        navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true
+        })
+          .then(stream => {
+            localVidsRef.current.srcObject = stream;
+            localVidsRef.current.play();
+            localVidsRef.current.muted = true
+
+            peer.current.on('call', (call) => {
+              call.answer(stream)
             })
           })
-        })
+      }
     }
   }
 
-  const callStreamer = async (streamId) => {
-    const connection = peer.current.connect(streamId);
-    connection.on('open', () => {
-      console.log(`連線連到一個人 ${streamId}`);
-      peer.current.call(streamId, null)
+  const callStreamer = (streamId) => {
+
+    if (!peer.current || !streamId) {
+      console.error(`其中有数值为空，Peer: ${peer.current}, streamId: ${streamId}`);
+      return
+    }
+
+    navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
     })
+      .then(stream => {
+        localVidsRef.current.srcObject = stream;
+        localVidsRef.current.play();
+        const call = peer.current.call(streamId, stream)
+
+        if (!call) {
+          console.log(`叫不到主播 ${streamId}`);
+          return;
+        }
+
+        call.on('stream', (stream) => {
+          remoteVidsRef.current.srcObject = stream;
+          remoteVidsRef.current.play();
+        })
+      })
   }
 
   return (
@@ -78,21 +99,37 @@ export default function Stream() {
       <div
         id='stream-block'
         className=' bg-black w-full flex flex-col mt-2 mb-2 max-h-[75vh] max-md:mt-10'>
-        <video
-          ref={localVidsRef}
-          className={`aspect-video object-contain max-h-[75vh]`}
-          controls
-          autoPlay
-          playsInline>
-        </video>
-        
-        <video
-          ref={remoteVidsRef}
-          className={`aspect-video object-contain max-h-[75vh]`}
-          controls
-          autoPlay
-          playsInline>
-        </video>
+
+        {role === "isStreamer" ?
+          <>
+            <video
+              ref={localVidsRef}
+              className={`aspect-video object-contain max-h-[30vh]`}
+              controls
+              autoPlay
+              playsInline>
+            </video>
+          </>
+          :
+          <>
+            <video
+              ref={localVidsRef}
+              className={`aspect-video object-contain max-h-[30vh]`}
+              controls
+              autoPlay
+              playsInline
+              hidden
+              >
+            </video>
+            <video
+              ref={remoteVidsRef}
+              className={`aspect-video object-contain max-h-[30vh]`}
+              controls
+              autoPlay
+              playsInline>
+            </video>
+          </>}
+
 
       </div>
     </>
