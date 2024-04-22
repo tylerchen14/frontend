@@ -4,7 +4,7 @@ import useAni from '@/contexts/use-animate';
 
 export default function GiftShow({ giftrain, size }) {
 
-  // const { isAnimating, setIsAnimating } = useAni()
+  const { isAnimating, setIsAnimating } = useAni()
 
   const gift_appear = {
 
@@ -30,9 +30,7 @@ export default function GiftShow({ giftrain, size }) {
     }
 
   }
-  // console.log(`第三次${isAnimating}`);
 
-console.log('跑動畫');
   return (
     <motion.div
       variants={gift_appear}
@@ -41,7 +39,7 @@ console.log('跑動畫');
       exit="exit"
       style={{ position: 'absolute', left: `${Math.random() * 100}%` }}
       onAnimationComplete={() => { 
-        // setIsAnimating(false) 
+        setIsAnimating(false) 
         }
       }
     >

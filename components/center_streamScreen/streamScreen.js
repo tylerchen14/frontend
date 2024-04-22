@@ -19,7 +19,6 @@ export default function StreamScreen({ isConnected }) {
   const { onPhone, showChatroom, showSidebar, showGift, handleChatroom, handleSidebarHide } = useToggle()
   const { eList, handleGiveEffect, showEffect } = useE()
   const { isAnimating } = useAni()
-  console.log(`第二次${isAnimating}`);
 
   return (
     <div className={styles['mainframe']}>

@@ -48,7 +48,9 @@ export default function Stream() {
 
       if (role === 'isStreamer') {
         navigator.mediaDevices.getUserMedia({
-          video: true,
+          video: {
+            facingMode: "user" 
+          },
           audio: true
         })
           .then(stream => {
@@ -67,12 +69,14 @@ export default function Stream() {
   const callStreamer = (streamId) => {
 
     if (!peer.current || !streamId) {
-      console.error(`其中有数值为空，Peer: ${peer.current}, streamId: ${streamId}`);
+      console.error(`其中有空數值，Peer: ${peer.current}, streamId: ${streamId}`);
       return
     }
 
     navigator.mediaDevices.getUserMedia({
-      video: true,
+      video: {
+        facingMode: "environment" 
+      },
       audio: false
     })
       .then(stream => {
@@ -118,7 +122,7 @@ export default function Stream() {
               controls
               autoPlay
               playsInline
-              hidden
+              // hidden
               >
             </video>
             <video

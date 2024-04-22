@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import useAni from './use-animate'
 import { socket } from '@/src/socket'
 
@@ -82,7 +82,7 @@ export function GiftContextProvider({ children }) {
       }
       return item
     })
-    setGList(updateList)
+      setGList(updateList)
 
     if (chance > 0) {
       setTotalBonus(prevTotal => prevTotal + gift)
@@ -94,7 +94,6 @@ export function GiftContextProvider({ children }) {
       return;
     }
     setIsAnimating(true);
-    console.log(`第一次${isAnimating}`);
     setGiftRain([]);
 
     const createGiftArray = Array.from({ length: 30 }).map((_, i) => ({
