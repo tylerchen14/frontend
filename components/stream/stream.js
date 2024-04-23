@@ -2,6 +2,7 @@ import { socket } from '@/src/socket';
 import { useRouter } from "next/router";
 import { Peer } from "peerjs";
 import { useEffect, useRef, useState } from 'react';
+import { API_SERVER } from '../config/api-path';
 
 export default function Stream() {
   const router = useRouter()
@@ -22,6 +23,11 @@ export default function Stream() {
       console.log({ newRole });
       setRole(newRole);
       createPeer(newRole)
+
+      // socket.on('streamerId', (id) => {
+      //   setStreamId(id);
+      // });
+
     }
   }, [router.isReady, router.query.streamerPath]);
 
@@ -34,8 +40,20 @@ export default function Stream() {
         socket.emit('check-role', id, role);
       });
 
-      socket.on('streamerStart', (id) => {
+      socket.on('streamerStart', async (id) => {
         setStreamId(id)
+        // socket.emit('giveCallId', id)
+
+        await fetch(`${API_SERVER}/stream-logon`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            streamId: id,
+          })
+        })
+
       })
 
       socket.on('viewerGo', (id) => {
@@ -47,9 +65,10 @@ export default function Stream() {
       })
 
       if (role === 'isStreamer') {
+
         navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: "user" 
+            facingMode: "user"
           },
           audio: true
         })
@@ -66,7 +85,22 @@ export default function Stream() {
     }
   }
 
-  const callStreamer = (streamId) => {
+  // socket.on('callThisId', (id) => {
+  //   setStreamId(id)
+  // })
+
+  const callStreamer = async () => {
+
+    const r = await fetch(`${API_SERVER}/watch-stream/tyler`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const data = await r.json()
+    setStreamId(data[0].stream_code)
+    console.log(data[0].stream_code);
 
     if (!peer.current || !streamId) {
       console.error(`其中有空數值，Peer: ${peer.current}, streamId: ${streamId}`);
@@ -75,9 +109,9 @@ export default function Stream() {
 
     navigator.mediaDevices.getUserMedia({
       video: {
-        facingMode: "environment" 
+        facingMode: "environment"
       },
-      audio: false
+      audio: true
     })
       .then(stream => {
         localVidsRef.current.srcObject = stream;
@@ -98,8 +132,8 @@ export default function Stream() {
 
   return (
     <>
-      <input value={streamId} onChange={e => setStreamId(e.target.value)} className="text-black" />
-      <button onClick={() => { callStreamer(streamId) }}>call streamer</button>
+      {/* <input value={streamId} onChange={e => setStreamId(e.target.value)} className="text-black" /> */}
+      {role === "isViewer" && <button onClick={callStreamer}>call A streamer</button>}
       <div
         id='stream-block'
         className=' bg-black w-full flex flex-col mt-2 mb-2 max-h-[75vh] max-md:mt-10'>
@@ -122,8 +156,9 @@ export default function Stream() {
               controls
               autoPlay
               playsInline
+              muted
               hidden
-              >
+            >
             </video>
             <video
               ref={remoteVidsRef}

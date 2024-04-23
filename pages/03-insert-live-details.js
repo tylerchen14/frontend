@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Process1 from '@/components/checkPoint/tyler_process1';
 
+
 export default function CheckWebcamSource() {
   const { streamTitle, setStreamTitle, streamDesciption, setStreamDesciption } = useStreamInfo()
   const [onPhone, setOnPhone] = useState(false);

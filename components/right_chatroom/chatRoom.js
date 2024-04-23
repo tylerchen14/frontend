@@ -260,7 +260,7 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
           })}
         </div>
 
-        {/* 置頂文字 */}
+        {/* 釘選文字 */}
         <div className={`flex flex-col items-start mb-2 ${pin ? "" : "hidden"}`}>
           <div className='flex justify-between w-full text-center'>
             <div className='flex w-6/12 gap-2 items-center justify-start'>
