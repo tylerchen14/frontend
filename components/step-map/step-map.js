@@ -1,14 +1,12 @@
-import React from 'react'
-import styles from './step-map.module.css'
-import Link from 'next/link'
 import { RiArrowDownSLine, RiArrowUpSLine } from "@remixicon/react";
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
 import { useState } from 'react';
+import styles from './step-map.module.css';
 
 export default function StepMap() {
 
   const router = useRouter()
-
+  const finalPrepPage = router.pathname.includes("/03");
   const [turnPage, setTurnPage] = useState([{
     url: '/'
   }, {
@@ -16,7 +14,7 @@ export default function StepMap() {
   }, {
     url: '/03-insert-live-details'
   }, {
-    url: '/04-final-check'
+    url: '/05-streaming'
   }])
 
   const handlePageChange = () => {
@@ -43,7 +41,7 @@ export default function StepMap() {
 
       <div className={styles['next-step']}
         onClick={handlePageChange}>
-        <div>下一步</div>
+        <div>{finalPrepPage ? "開始直播" : "下一步"}</div>
         <RiArrowDownSLine className={styles['arrow']}></RiArrowDownSLine>
       </div>
     </div>

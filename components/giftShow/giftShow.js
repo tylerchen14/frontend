@@ -1,10 +1,8 @@
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import useAni from '@/contexts/use-animate';
 
-export default function GiftShow({ giftrain, size }) {
 
-  const { isAnimating, setIsAnimating } = useAni()
+export default function GiftShow({ giftrain, size, setIsAnimating,  }) {
 
   const gift_appear = {
 
@@ -15,6 +13,7 @@ export default function GiftShow({ giftrain, size }) {
 
     visible: {
       y: [-200, 900],
+      zIndex: 999,
       opacity: 1,
       transition: {
         duration: 1.5,
@@ -38,10 +37,10 @@ export default function GiftShow({ giftrain, size }) {
       animate="visible"
       exit="exit"
       style={{ position: 'absolute', left: `${Math.random() * 100}%` }}
-      onAnimationComplete={() => { 
-        setIsAnimating(false) 
-        }
-      }
+      onAnimationComplete={() => {
+        setIsAnimating(false)
+
+        }}
     >
       <Image width={size} height={size} src={giftrain} />
     </motion.div>

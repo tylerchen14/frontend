@@ -108,7 +108,7 @@ export default function Stream() {
           <>
             <video
               ref={localVidsRef}
-              className={`aspect-video object-contain max-h-[30vh]`}
+              className={`aspect-video object-contain max-h-[75vh]`}
               controls
               autoPlay
               playsInline>
@@ -118,16 +118,16 @@ export default function Stream() {
           <>
             <video
               ref={localVidsRef}
-              className={`aspect-video object-contain max-h-[30vh]`}
+              className={`aspect-video object-contain max-h-[75vh]`}
               controls
               autoPlay
               playsInline
-              // hidden
+              hidden
               >
             </video>
             <video
               ref={remoteVidsRef}
-              className={`aspect-video object-contain max-h-[30vh]`}
+              className={`aspect-video object-contain max-h-[75vh]`}
               controls
               autoPlay
               playsInline>

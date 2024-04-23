@@ -1,5 +1,4 @@
 import Title from '@/components/title/title';
-import useAni from '@/contexts/use-animate';
 import useE from '@/contexts/use-effect';
 import useGift from '@/contexts/use-gift';
 import useToggle from '@/contexts/use-toggle-show';
@@ -15,23 +14,25 @@ const StreamContent = dynamic(() => import('@/components/stream/stream'), {
 })
 
 export default function StreamScreen({ isConnected }) {
-  const { gList, giftRain, handleGiveGift } = useGift()
+  const { gList, giftRain, handleGiveGift, isAnimating, setIsAnimating } = useGift()
   const { onPhone, showChatroom, showSidebar, showGift, handleChatroom, handleSidebarHide } = useToggle()
   const { eList, handleGiveEffect, showEffect } = useE()
-  const { isAnimating } = useAni()
 
   return (
     <div className={styles['mainframe']}>
 
-      <AnimatePresence>
-        {giftRain.map(g => {
-          return <GiftShow
-            key={g.id + '-' + new Date().getTime()}
-            giftrain={g.gift}
-            size={g.size}
-          ></GiftShow>
-        })}
-      </AnimatePresence>
+      {/* <div className={`absolute w-full h-full ${isAnimating ? "z-50" : "z-0"}`}> */}
+        <AnimatePresence>
+          {giftRain.map(g => {
+            return <GiftShow
+              key={g.id + '-' + new Date().getTime()}
+              giftrain={g.gift}
+              size={g.size}
+              setIsAnimating={setIsAnimating}
+            ></GiftShow>
+          })}
+        </AnimatePresence>
+      {/* </div> */}
 
       {/* 左邊收起按鈕 */}
       <div className={`${styles['arrow-box-left']} ${onPhone ? "hidden" : ""}`}
@@ -113,7 +114,7 @@ export default function StreamScreen({ isConnected }) {
                       src={c.src}
                       className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
                       alt={c.name}
-                      onClick={isAnimating ? null : () => handleGiveGift(c.price, c.chance, c.name, c.src)}
+                      onClick={() => handleGiveGift(c.price, c.chance, c.name, c.src)}
                     ></Image>
                   </motion.div>
 

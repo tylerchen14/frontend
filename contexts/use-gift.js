@@ -1,6 +1,4 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import useAni from './use-animate'
-import { socket } from '@/src/socket'
 
 const GiftContext = createContext(null)
 
@@ -65,7 +63,7 @@ export function GiftContextProvider({ children }) {
   const [totalBonus, setTotalBonus] = useState(0)
   const [gList, setGList] = useState(giftList)
   const [giftRain, setGiftRain] = useState([])
-  const { isAnimating, setIsAnimating } = useAni()
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // 禮物列表
 
@@ -82,7 +80,7 @@ export function GiftContextProvider({ children }) {
       }
       return item
     })
-      setGList(updateList)
+    setGList(updateList)
 
     if (chance > 0) {
       setTotalBonus(prevTotal => prevTotal + gift)
@@ -90,27 +88,29 @@ export function GiftContextProvider({ children }) {
       return
     }
 
+    // if (isAnimating) {
+    //   return;
+    // }
+    // setIsAnimating(true);
+    // setGiftRain([]);
     if (isAnimating) {
       return;
+    } else {
+      setIsAnimating(true)
+      setGiftRain([]);
+      const createGiftArray = Array.from({ length: 30 }).map((_, i) => ({
+        id: i,
+        gift: pic,
+        size: `${parseInt(Math.random() * (70 - 10) + 50)}`
+      }))
+      setGiftRain(createGiftArray)
     }
-    setIsAnimating(true);
-    setGiftRain([]);
 
-    const createGiftArray = Array.from({ length: 30 }).map((_, i) => ({
-      id: i,
-      gift: pic,
-      size: `${parseInt(Math.random() * (70 - 10) + 50)}`
-    }))
-    setTimeout(() => setGiftRain(createGiftArray), 0);
-    socket.emit('giveGift', createGiftArray)
-    socket.on('giveGiftToOthers', () => {
-      setTimeout(() => setGiftRain(createGiftArray), 0);
-    })
+    // setTimeout(() => setGiftRain(createGiftArray), 0);
   }
 
-
   return (
-    <GiftContext.Provider value={{ totalBonus, gList, giftRain,handleGiveGift, setGiftRain}}>
+    <GiftContext.Provider value={{ totalBonus, gList, giftRain, handleGiveGift, setGiftRain, isAnimating, setIsAnimating }}>
       {children}
     </GiftContext.Provider>
   )

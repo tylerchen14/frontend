@@ -1,8 +1,11 @@
 import { RiArrowDownSLine, RiArrowUpSLine, RiArrowRightSLine } from "@remixicon/react";
 import { useState } from 'react';
 import styles from './title.module.css';
+import useStreamInfo from "@/contexts/use-streamInfo";
 
 export default function Title() {
+
+  const { streamTitle, setStreamTitle, streamDesciption, setStreamDesciption } = useStreamInfo()
 
   // 標題敘述
   const initDetail = {
@@ -29,11 +32,11 @@ export default function Title() {
           }
       <div>
         <div className='flex items-center'>
-          <div className='text-xl font-semibold max-md:text-base'>{streamDetail.title}</div>
+          <div className='text-xl font-semibold max-md:text-base'>{streamTitle}</div>
           
         </div>
         <div className={`font-semibold text-sm max-md:w-[300px] ${showDetail ? "block" : "hidden"}`}
-        >{streamDetail.detail}</div>
+        >{streamDesciption}</div>
       </div>
     </div>
   )
