@@ -7,9 +7,8 @@ import useToggle from '@/contexts/use-toggle-show';
 
 export default function Stream() {
   const router = useRouter()
-
   const [streamRoom, setStreamRoom] = useState('')
-  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, streamId, setStreamId, role, setRole, viewerId, setViewerId,roomCode, setRoomCode } = useToggle()
+  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, streamId, setStreamId, role, setRole, viewerId, setViewerId, roomCode, setRoomCode } = useToggle()
   const localVidsRef = useRef(null)
   const remoteVidsRef = useRef(null)
   const peer = useRef()
@@ -60,8 +59,8 @@ export default function Stream() {
       })
 
       if (role === 'isStreamer') {
-        socket.emit('joinRoom',roomCode )
-        console.log({roomCode});
+        socket.emit('joinRoom', roomCode)
+        console.log({ roomCode });
         navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: "user"
@@ -99,7 +98,7 @@ export default function Stream() {
       return
     }
 
-    socket.emit('joinRoom',roomCode )
+    socket.emit('joinRoom', roomCode)
 
     navigator.mediaDevices.getUserMedia({
       video: {
@@ -126,7 +125,12 @@ export default function Stream() {
 
   return (
     <>
-      {role === "isViewer" && <button onClick={callStreamer}>call A streamer</button>}
+      {role === "isViewer" &&
+        <div className='flex gap-3 mb-3 items-center' onClick={callStreamer}>
+          <img
+            src="/images/face-id.png"
+            className="bg-white rounded-full p-1 h-[34px]" />
+        </div>}
       <div
         id='stream-block'
         className=' bg-black w-full flex flex-col mt-2 mb-2 max-h-[75vh] max-md:mt-10'>
