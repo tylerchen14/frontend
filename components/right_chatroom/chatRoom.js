@@ -9,11 +9,10 @@ import { API_SERVER } from "../config/api-path";
 import styles from './chatRoom.module.css';
 
 export default function ChatRoom({ isConnected, comment, setComment }) {
-  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist } = useToggle()
+  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, role, roomCode, setRoomCode } = useToggle()
   const { handleEffectTab } = useE()
   const [replyTarget, setreplyTarget] = useState("")
   const [replyTargetName, setreplyTargetName] = useState("")
-  const room = "liveChatRoom"
   const [peopleOnline, setPeopleOnline] = useState(0)
   const { pts, setPts } = usePoint()
   const [pin, setPin] = useState(false)
@@ -27,19 +26,15 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
 
   useEffect(() => {
 
-    const handelConnection = () => {
-      socket.emit("joinRoom", room);
-    }
-
     const handlePeopleOnline = (liveNum) => {
       setPeopleOnline(liveNum)
     }
 
-    socket.on('connect', handelConnection)
+    // socket.on('connect', handelConnection)
     socket.on('updateLiveNum', handlePeopleOnline)
 
     return () => {
-      socket.off('connect', handelConnection)
+      // socket.off('connect', handelConnection)
 
       socket.off('updateLiveNum', handlePeopleOnline)
       socket.disconnect();
@@ -89,8 +84,8 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
         }
 
         if (isConnected) {
-          socket.emit('sendComment', newComment, room)
-          console.log({ newComment }, { room });
+          socket.emit('sendComment', newComment, roomCode)
+          console.log({ newComment }, { roomCode });
           e.target.value = ""
           setreplyTarget("")
         } else {
@@ -161,12 +156,12 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
       name: pinN,
     })
 
-    socket.emit('pinnedComment', pinI, pinP, pinN, pinC);
+    socket.emit('pinnedComment', pinI, pinP, pinN, pinC, roomCode);
   }
 
   const handleUnpin = () => {
     setPin(false)
-    socket.emit('unpinComment')
+    socket.emit('unpinComment', roomCode)
   }
 
   useEffect(() => {
@@ -187,7 +182,7 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
         profile: "/images/treasure.png",
         comment: "點頭貼，領點數！",
       }
-      socket.emit('sendComment', newComment, room)
+      socket.emit('sendComment', newComment, roomCode)
     }, 100000);
 
     return () => clearInterval(getPoints)
@@ -245,13 +240,14 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
                       className='bg-white rounded-full p-1' />
                     <div className='shrink-0'>{c.name}</div>
                   </div>
-                  <div className='flex w-6/12 justify-end'>
-                    <RiPushpinFill className={styles.icon_reply} onClick={() => { handlePin(c.id, c.profile, c.name, c.comment) }} />
-                    <RiReplyFill
-                      className={styles.icon_reply}
-                      onClick={() => { handleClickIcon(c.comment, c.name) }}
-                    />
-                  </div>
+                  {role === "isStreamer" &&
+                    <div className='flex w-6/12 justify-end'>
+                      <RiPushpinFill className={styles.icon_reply} onClick={() => { handlePin(c.id, c.profile, c.name, c.comment) }} />
+                    </div>}
+                  <RiReplyFill
+                    className={styles.icon_reply}
+                    onClick={() => { handleClickIcon(c.comment, c.name) }}
+                  />
                 </div>
 
                 <div className='w-[200px] ml-9 break-words'>{c.comment}</div>
@@ -267,9 +263,9 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
               <Image width={30} height={30} alt='大頭貼' src={pinnedData.profile} className='bg-white rounded-full p-1' />
               <div className='shrink-0'>{pinnedData.name}</div>
             </div>
-            <div className='w-6/12 flex justify-end items-center'>
+            {role === "isStreamer" && <div className='w-6/12 flex justify-end items-center'>
               <RiCloseFill className=' cursor-pointer h-5' onClick={handleUnpin}></RiCloseFill>
-            </div>
+            </div>}
           </div>
           <div className='w-[210px] ml-9 break-words'>{pinnedData.comment}</div>
         </div>

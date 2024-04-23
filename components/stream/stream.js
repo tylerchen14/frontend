@@ -3,13 +3,13 @@ import { useRouter } from "next/router";
 import { Peer } from "peerjs";
 import { useEffect, useRef, useState } from 'react';
 import { API_SERVER } from '../config/api-path';
+import useToggle from '@/contexts/use-toggle-show';
 
 export default function Stream() {
   const router = useRouter()
-  const [role, setRole] = useState("")
+
   const [streamRoom, setStreamRoom] = useState('')
-  const [streamId, setStreamId] = useState('');
-  const [viewerId, setViewerId] = useState([])
+  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, streamId, setStreamId, role, setRole, viewerId, setViewerId,roomCode, setRoomCode } = useToggle()
   const localVidsRef = useRef(null)
   const remoteVidsRef = useRef(null)
   const peer = useRef()
@@ -23,10 +23,6 @@ export default function Stream() {
       console.log({ newRole });
       setRole(newRole);
       createPeer(newRole)
-
-      // socket.on('streamerId', (id) => {
-      //   setStreamId(id);
-      // });
 
     }
   }, [router.isReady, router.query.streamerPath]);
@@ -42,7 +38,7 @@ export default function Stream() {
 
       socket.on('streamerStart', async (id) => {
         setStreamId(id)
-        // socket.emit('giveCallId', id)
+        setRoomCode(id)
 
         await fetch(`${API_SERVER}/stream-logon`, {
           method: "POST",
@@ -53,7 +49,6 @@ export default function Stream() {
             streamId: id,
           })
         })
-
       })
 
       socket.on('viewerGo', (id) => {
@@ -65,7 +60,8 @@ export default function Stream() {
       })
 
       if (role === 'isStreamer') {
-
+        socket.emit('joinRoom',roomCode )
+        console.log({roomCode});
         navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: "user"
@@ -85,10 +81,6 @@ export default function Stream() {
     }
   }
 
-  // socket.on('callThisId', (id) => {
-  //   setStreamId(id)
-  // })
-
   const callStreamer = async () => {
 
     const r = await fetch(`${API_SERVER}/watch-stream/tyler`, {
@@ -99,13 +91,15 @@ export default function Stream() {
     })
 
     const data = await r.json()
-    setStreamId(data[0].stream_code)
-    console.log(data[0].stream_code);
+    setRoomCode(data[0].stream_code)
+    setStreamId(roomCode)
 
     if (!peer.current || !streamId) {
       console.error(`其中有空數值，Peer: ${peer.current}, streamId: ${streamId}`);
       return
     }
+
+    socket.emit('joinRoom',roomCode )
 
     navigator.mediaDevices.getUserMedia({
       video: {
@@ -132,7 +126,6 @@ export default function Stream() {
 
   return (
     <>
-      {/* <input value={streamId} onChange={e => setStreamId(e.target.value)} className="text-black" /> */}
       {role === "isViewer" && <button onClick={callStreamer}>call A streamer</button>}
       <div
         id='stream-block'

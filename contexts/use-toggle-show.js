@@ -3,13 +3,15 @@ import { createContext, useContext, useState, useEffect } from 'react'
 const ViewToggleContext = createContext(null)
 
 export function ViewToggleContextProvider({ children }) {
-
+  const [streamId, setStreamId] = useState('');
+  const [viewerId, setViewerId] = useState([])
   const [onPhone, setOnPhone] = useState(false);
   const [showChatroom, setShowChatroom] = useState(true);
   const [showSidebar, setShowSidebar] = useState(true);
   const [showGift, setShowGift] = useState(false);
   const [showMember, setShowMember] = useState(false);
-
+  const [role, setRole] = useState("")
+  const [roomCode, setRoomCode] = useState('')
   // 手機上顯示
   useEffect(() => {
     const sizeChange = () => {
@@ -42,7 +44,10 @@ export function ViewToggleContextProvider({ children }) {
   }
 
   return (
-    <ViewToggleContext.Provider value={{onPhone,showChatroom,showSidebar,showGift,showMember,handleChatroom,handleSidebarHide,handleShowGift,handleShowMemberlist}}>
+    <ViewToggleContext.Provider value={{
+      onPhone, showChatroom, showSidebar, showGift, showMember, handleChatroom, handleSidebarHide, handleShowGift, handleShowMemberlist, role, setRole, streamId, setStreamId,
+      viewerId, setViewerId, roomCode, setRoomCode
+    }}>
       {children}
     </ViewToggleContext.Provider>
   )
