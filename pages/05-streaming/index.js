@@ -10,8 +10,6 @@ export default function Streaming() {
   const { totalBonus } = useGift()
   const [isConnected, setIsConnected] = useState(socket.connected);
 
-
-
   // 留言功能
   const [comment, setComment] = useState([{
     id: 1,
@@ -22,9 +20,14 @@ export default function Streaming() {
   }])
 
   useEffect(() => {
-    socket.connect();
+    if (!socket.connected) {
+      socket.connect();
+    }
+
     return () => {
-      socket.disconnect();
+      if (socket.connected) {
+        socket.disconnect();
+      }
     }
   }, [])
 

@@ -79,25 +79,26 @@
   .gift-bar {
     overflow-x: auto;
     gap: 20px;
+    width: 97%;
     position: absolute;
-    transform: translateY(280%);
+    /* transform: translateY(425%); */
     color: white;
-    backdrop-filter: blur(6px);
   }
 
-  .gift-bar::-webkit-scrollbar {
-    width: 8px;
+  .gift-bar::-webkit-scrollbar-thumb:horizontal {
+    width: 4px;
   }
 
   .gift-bar::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
   }
 
   .gift-bar::-webkit-scrollbar-track {
     background-color: transparent;
   }
 
-  .cancel{
+  .cancel {
     color: white;
   }
 }

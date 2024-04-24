@@ -22,16 +22,16 @@ export default function StreamScreen({ isConnected }) {
     <div className={styles['mainframe']}>
 
       {/* <div className={`absolute w-full h-full ${isAnimating ? "z-50" : "z-0"}`}> */}
-        <AnimatePresence>
-          {giftRain.map(g => {
-            return <GiftShow
-              key={g.id + '-' + new Date().getTime()}
-              giftrain={g.gift}
-              size={g.size}
-              setIsAnimating={setIsAnimating}
-            ></GiftShow>
-          })}
-        </AnimatePresence>
+      <AnimatePresence>
+        {giftRain.map(g => {
+          return <GiftShow
+            key={g.id + '-' + new Date().getTime()}
+            giftrain={g.gift}
+            size={g.size}
+            setIsAnimating={setIsAnimating}
+          ></GiftShow>
+        })}
+      </AnimatePresence>
       {/* </div> */}
 
       {/* 左邊收起按鈕 */}
@@ -67,7 +67,7 @@ export default function StreamScreen({ isConnected }) {
       {/* 禮物框 */}
       {showEffect ?
         <>
-          <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} w-5/12 gap-14`}>
+          <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} w-5/12 gap-14 max-md:top-[460px]`}>
             {eList.map((c, i) => {
               return (
                 <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer " key={i}>
@@ -98,7 +98,7 @@ export default function StreamScreen({ isConnected }) {
         </>
         :
         <>
-          <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} gap-8 `}>
+          <div className={`${styles['gift-bar']} ${showGift ? "" : "max-md:opacity-0"} gap-8 max-md:top-[445px]`}>
             {gList.map((c, i) => {
               return (
                 <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer" key={i}>

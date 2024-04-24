@@ -22,7 +22,6 @@ export default function Stream() {
       console.log({ newRole });
       setRole(newRole);
       createPeer(newRole)
-
     }
   }, [router.isReady, router.query.streamerPath]);
 
@@ -99,6 +98,8 @@ export default function Stream() {
     }
 
     socket.emit('joinRoom', roomCode)
+    socket.emit('userEnter', { name: "tyler" }, roomCode)
+
 
     navigator.mediaDevices.getUserMedia({
       video: {
@@ -126,11 +127,19 @@ export default function Stream() {
   return (
     <>
       {role === "isViewer" &&
-        <div className='flex gap-3 mb-3 items-center' onClick={callStreamer}>
-          <img
-            src="/images/face-id.png"
-            className="bg-white rounded-full p-1 h-[34px]" />
-        </div>}
+        <div>
+          <div className='absolute right-10 top-9 flex gap-3 mb-3 items-center cursor-pointer hover:scale-125 transition-all duration-300' onClick={callStreamer}>
+            <img
+              src="/images/face-id.png"
+              className="bg-white rounded-full p-1 h-[34px]" />
+          </div>
+          <div className='absolute right-10 top-9 flex gap-3 mb-3 items-center cursor-pointer hover:scale-125 transition-all duration-300' onClick={callStreamer}>
+            <img
+              src="/images/face-id.png"
+              className="bg-white rounded-full p-1 h-[34px]" />
+          </div>
+        </div>
+      }
       <div
         id='stream-block'
         className=' bg-black w-full flex flex-col mt-2 mb-2 max-h-[75vh] max-md:mt-10'>

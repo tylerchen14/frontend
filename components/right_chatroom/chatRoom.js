@@ -289,7 +289,10 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
             ref={handleCommentFocus}
           />
 
-          <button className={styles['sticker-comment']}>{onPhone ? "送出" : ""}</button>
+          <button
+            className="absolute top-1 right-2 font-medium text-black"
+            onClick={handleCommentSubmit}
+          >{onPhone ? "送出" : ""}</button>
         </div>
 
         {/* 點數與禮物框 */}

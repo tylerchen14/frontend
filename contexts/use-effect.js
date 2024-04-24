@@ -27,13 +27,6 @@ export function EffectContextProvider({ children }) {
       price: "300",
       grayscale: false,
     },
-    {
-      effect_id: 4,
-      name: "釘選留言",
-      src: "/images/pin.png",
-      price: "400",
-      grayscale: false,
-    },
   ]
   const [showEffect, setShowEffect] = useState(false)
   const [eList, setEList] = useState(effectList)

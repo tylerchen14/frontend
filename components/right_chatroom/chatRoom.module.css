@@ -21,13 +21,6 @@
   width: 0%;
 }
 
-.sticker-comment {
-  position: absolute;
-  right: 2%;
-  top: 10%;
-  color: black;
-}
-
 .repliedTarget {
   overflow-x: auto;
 }
@@ -107,8 +100,22 @@
   }
 
   .chat {
-    /* outline: 1px solid white; */
+    outline: 1px solid white;
     margin-top: 0;
+    height: 250px;
+    overflow-y: auto;
+  }
+
+  .chat::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .chat::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+  
+  .chat::-webkit-scrollbar-track {
+    background-color: transparent;
   }
 
 }
