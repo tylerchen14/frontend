@@ -23,6 +23,7 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
     name: "",
   })
   const handleCommentFocus = useRef()
+  const [inputC, setInputC] = useState('')
 
   useEffect(() => {
 
@@ -68,7 +69,6 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
     getUserProfile()
   }, [comment])
 
-
   const handleCommentSubmit = (e) => {
     if (e.key === "Enter" && !isComposing) {
       const inputComment = e.target.value.trim();
@@ -108,32 +108,6 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
     setreplyTarget("")
     setreplyTargetName("")
   }
-
-  const [blockComment, setBlockComment] = useState(true)
-  const [blockWord, setBlockWord] = useState([])
-
-  const handleBlockComment = () => {
-    setBlockComment(!blockComment)
-  }
-
-  const handleBlockWord = (e) => {
-    setBlockWord(e.target.value.split(","))
-    console.log(blockWord);
-  }
-
-  useEffect(() => {
-    const updatedComments = comment.map(c => {
-      let updatedComment = c.comment;
-      blockWord.forEach(word => {
-        if (updatedComment.includes(word)) {
-          updatedComment = updatedComment.replace(word, "***");
-        }
-      });
-      return { ...c, comment: updatedComment };
-    });
-    setComment(updatedComments);
-  }, [blockWord]);
-
 
   // 置頂功能
   useEffect(() => {
@@ -314,17 +288,8 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
                 className={styles.iconstore}
                 onClick={handleShowMemberlist}
               ></RiUserFill>
-              <RiStoreLine
-                className={styles.iconstore}
-              ></RiStoreLine></>
+              </>
               : ""}
-
-            <RiSpam3Line className={styles.iconstore} id='block' onClick={handleBlockComment}></RiSpam3Line>
-            <input type="text" id='block'
-              className={` transition-width duration-300 ease-in-out ${blockComment ? "w-0" : "w-[140px]"} max-md:${blockComment ? "w-0" : "w-[100px]"} text-black`}
-              value={blockWord}
-              onChange={handleBlockWord}
-              maxLength={20} />
           </div>
         </div>
       </div>
