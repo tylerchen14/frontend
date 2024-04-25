@@ -1,6 +1,7 @@
 import { API_SERVER } from '@/components/config/api-path';
 import { createContext, useContext, useEffect, useState } from 'react';
 import useToggle from './use-toggle-show';
+import { socket } from '@/src/socket';
 
 const GiftContext = createContext(null)
 
@@ -75,13 +76,19 @@ export function GiftContextProvider({ children }) {
       const response = await fetch(`${API_SERVER}/totalBonus/Noah`);
       const data = await response.json();
       setTotalBonus(data);
+      socket.emit('totalBonus', data, roomCode)
     } catch (error) {
       console.error('抓不到 totalBonus:', error);
     }
   };
 
   useEffect(() => {
+    // if (roomCode === streamId) {
     fetchTotalBonus();
+    socket.on('updateBonus', data => {
+      setTotalBonus(data)
+    })
+    // }
   }, []);
 
   const handleGiveGift = async (price, chance, name, pic) => {

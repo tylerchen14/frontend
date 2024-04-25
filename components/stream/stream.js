@@ -4,15 +4,15 @@ import { Peer } from "peerjs";
 import { useEffect, useRef, useState } from 'react';
 import { API_SERVER } from '../config/api-path';
 import useToggle from '@/contexts/use-toggle-show';
+import useE from '@/contexts/use-effect';
 
 export default function Stream() {
   const router = useRouter()
   const [streamRoom, setStreamRoom] = useState('')
-  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, streamId, setStreamId, role, setRole, viewerId, setViewerId, roomCode, setRoomCode, isStreaming, setIsStreaming } = useToggle()
+  const { streamId, setStreamId, role, setRole, viewerId, setViewerId, roomCode, setRoomCode, isStreaming, setIsStreaming } = useToggle()
   const localVidsRef = useRef(null)
   const remoteVidsRef = useRef(null)
   const peer = useRef()
-
 
   useEffect(() => {
     if (router.isReady) {
@@ -25,13 +25,6 @@ export default function Stream() {
       createPeer(newRole)
     }
   }, [router.isReady, router.query.streamerPath]);
-
-  useEffect(() => {
-    return () => {
-      stopStreaming()
-      console.log({ isStreaming });
-    };
-  }, []);
 
   const createPeer = (role) => {
     if (!peer.current) {
@@ -58,17 +51,12 @@ export default function Stream() {
       })
 
       socket.on('viewerGo', (id) => {
-        setViewerId(prev => {
-          const newViewerId = [...prev, id]
-          console.log(`觀眾列表：${newViewerId}`);
-          return newViewerId
-        })
+        setViewerId(id
+        )
       })
 
       if (role === 'isStreamer') {
         socket.emit('joinRoom', roomCode)
-        setIsStreaming(true)
-        console.log({ isStreaming });
         console.log({ roomCode });
         navigator.mediaDevices.getUserMedia({
           video: {
@@ -84,22 +72,15 @@ export default function Stream() {
             peer.current.on('call', (call) => {
               call.answer(stream)
             })
-          })
 
+            setIsStreaming(true)
+            console.log({ isStreaming });
+          })
       }
     }
   }
 
-  const stopStreaming = () => {
-    if (peer.current) {
-      peer.current.destroy();
-      peer.current = null;
-    }
-    setIsStreaming(false);
-  };
-
-  const callStreamer = async () => {
-
+  const calling = async () => {
     const r = await fetch(`${API_SERVER}/watch-stream/tyler`, {
       method: "GET",
       headers: {
@@ -110,15 +91,21 @@ export default function Stream() {
     const data = await r.json()
     setRoomCode(data[0].stream_code)
     setStreamId(roomCode)
+  }
 
-    if (!peer.current || !streamId) {
+  useEffect(() => {
+    calling()
+  })
+
+  const callStreamer = async () => {
+
+    if (!peer.current || !streamId || !viewerId) {
       console.error(`其中有空數值，Peer: ${peer.current}, streamId: ${streamId}`);
       return
+    } else {
+      socket.emit('joinRoom', roomCode)
+      socket.emit('userEnter', { name: "tyler" }, roomCode, viewerId)
     }
-
-    socket.emit('joinRoom', roomCode)
-    socket.emit('userEnter', { name: "tyler" }, roomCode)
-
 
     navigator.mediaDevices.getUserMedia({
       video: {
@@ -146,7 +133,7 @@ export default function Stream() {
 
   return (
     <>
-      {role === "isViewer" && !isStreaming &&
+      {role === "isViewer" &&
         <div className='absolute right-10 top-9 flex gap-3 mb-3 items-center cursor-pointer hover:scale-125 transition-all duration-300 max-md:z-50 max-md:left-3 max-md:top-3' onClick={callStreamer}>
           <img
             src="/images/face-id.png"

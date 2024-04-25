@@ -7,18 +7,29 @@ import styles from './memberList.module.css';
 
 export default function MemberList({ totalBonus }) {
 
-  const { onPhone, showSidebar, showMember, handleShowMemberlist } = useToggle()
+  const { onPhone, showSidebar, showMember, handleShowMemberlist, roomCode } = useToggle()
   const [members, setMembers] = useState([])
 
   useEffect(() => {
-    socket.on('userGo', userData => {
-      setMembers(prev => [...prev, userData])
+    socket.on('userGo', name => {
+      setMembers(prev => [...prev, name]);
     })
 
     return () => {
       socket.off('userGo');
     };
   }, [])
+
+  useEffect(() => {
+    socket.emit('addMember', roomCode, members)
+  }, [members])
+
+  // FIXME:有問題
+  // useEffect(() => {
+  //   socket.on('memberAdd', memberList => {
+  //     setMembers(memberList)
+  //   })
+  // }, [])
 
   return (
     <div className={`${styles['sidebar']} ${showSidebar ? '' : styles.hidden_left} ${!onPhone ? "" : showMember ? styles.show_up : styles.hidden_down}`}>
@@ -37,7 +48,7 @@ export default function MemberList({ totalBonus }) {
         <div className={styles['member-list']}>
           {members.map((m, i) => (
             <Member key={i}
-              name={m.name}></Member>
+              name={m}></Member>
           ))}
 
         </div>

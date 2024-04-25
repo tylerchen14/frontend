@@ -8,13 +8,13 @@ import { useEffect, useRef, useState } from "react";
 import { API_SERVER } from "../config/api-path";
 import styles from './chatRoom.module.css';
 
-export default function ChatRoom({ isConnected, comment, setComment }) {
-  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, role, roomCode, setRoomCode } = useToggle()
+export default function ChatRoom({ isConnected, comment }) {
+  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, role, roomCode } = useToggle()
   const { handleEffectTab } = useE()
   const [replyTarget, setreplyTarget] = useState("")
   const [replyTargetName, setreplyTargetName] = useState("")
   const [peopleOnline, setPeopleOnline] = useState(0)
-  const { pts, setPts, myPoints } = usePoint()
+  const { pts, myPoints } = usePoint()
   const [pin, setPin] = useState(false)
   const [pinnedData, setPinnedData] = useState({
     commentId: null,
@@ -30,13 +30,9 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
     const handlePeopleOnline = (liveNum) => {
       setPeopleOnline(liveNum)
     }
-
-    // socket.on('connect', handelConnection)
     socket.on('updateLiveNum', handlePeopleOnline)
 
     return () => {
-      // socket.off('connect', handelConnection)
-
       socket.off('updateLiveNum', handlePeopleOnline)
       socket.disconnect();
     }

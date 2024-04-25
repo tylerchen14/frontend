@@ -4,7 +4,7 @@ const ViewToggleContext = createContext(null)
 
 export function ViewToggleContextProvider({ children }) {
   const [streamId, setStreamId] = useState('');
-  const [viewerId, setViewerId] = useState([])
+  const [viewerId, setViewerId] = useState("")
   const [onPhone, setOnPhone] = useState(false);
   const [showChatroom, setShowChatroom] = useState(true);
   const [showSidebar, setShowSidebar] = useState(true);

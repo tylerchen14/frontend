@@ -1,5 +1,4 @@
 import Title from '@/components/title/title';
-import useE from '@/contexts/use-effect';
 import useGift from '@/contexts/use-gift';
 import useToggle from '@/contexts/use-toggle-show';
 import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiCoinFill } from "@remixicon/react";
@@ -14,7 +13,7 @@ const StreamContent = dynamic(() => import('@/components/stream/stream'), {
 })
 
 export default function StreamScreen({ isConnected }) {
-  const { gList, giftRain, handleGiveGift, isAnimating, setIsAnimating } = useGift()
+  const { gList, giftRain, handleGiveGift, setIsAnimating } = useGift()
   const { onPhone, showChatroom, showSidebar, showGift, handleChatroom, handleSidebarHide } = useToggle()
 
   return (
@@ -88,7 +87,6 @@ export default function StreamScreen({ isConnected }) {
                 <RiCoinFill
                   style={{ color: "#fff400" }}
                   className='mt-1 h-4'></RiCoinFill>
-
                 <div
                   className='mr-2 text-sm'>{c.price}</div>
               </div>
