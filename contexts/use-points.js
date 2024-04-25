@@ -25,12 +25,10 @@ export function PointContextProvider({ children }) {
 
   useEffect(() => {
     myPoints()
-    const intervalId = setInterval(myPoints, 1000);
-    return () => clearInterval(intervalId);
   }, [])
 
   return (
-    <PointContext.Provider value={{ pts, setPts }}>
+    <PointContext.Provider value={{ pts, setPts, myPoints }}>
       {children}
     </PointContext.Provider>
   )

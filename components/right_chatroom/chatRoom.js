@@ -2,7 +2,7 @@ import useE from "@/contexts/use-effect";
 import usePoint from "@/contexts/use-points";
 import useToggle from "@/contexts/use-toggle-show";
 import { socket } from "@/src/socket";
-import { RiCloseFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiSpam3Line, RiStoreLine, RiUser3Fill, RiUserFill } from "@remixicon/react";
+import { RiCloseFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiUser3Fill, RiUserFill } from "@remixicon/react";
 import Image from 'next/image';
 import { useEffect, useRef, useState } from "react";
 import { API_SERVER } from "../config/api-path";
@@ -14,7 +14,7 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
   const [replyTarget, setreplyTarget] = useState("")
   const [replyTargetName, setreplyTargetName] = useState("")
   const [peopleOnline, setPeopleOnline] = useState(0)
-  const { pts, setPts } = usePoint()
+  const { pts, setPts, myPoints } = usePoint()
   const [pin, setPin] = useState(false)
   const [pinnedData, setPinnedData] = useState({
     commentId: null,
@@ -23,7 +23,7 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
     name: "",
   })
   const handleCommentFocus = useRef()
-  const [inputC, setInputC] = useState('')
+  const SendButton = useRef()
 
   useEffect(() => {
 
@@ -70,8 +70,35 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
   }, [comment])
 
   const handleCommentSubmit = (e) => {
-    if (e.key === "Enter" && !isComposing) {
-      const inputComment = e.target.value.trim();
+
+    if (e.target !== SendButton.current) {
+
+      if (e.key === "Enter" && !isComposing) {
+        const inputComment = e.target.value.trim();
+        let newId = Date.now();;
+
+        if (inputComment !== "") {
+          const newComment = {
+            id: newId,
+            name: "陳泰勒",
+            profile: userProfile,
+            comment: inputComment,
+            reply: replyTarget,
+          }
+
+          if (isConnected) {
+            socket.emit('sendComment', newComment, roomCode)
+            console.log({ newComment }, { roomCode });
+            e.target.value = ""
+            setreplyTarget("")
+          } else {
+            console.log(`socket尚未連線`);
+          }
+        }
+      }
+    } else if (e.target == SendButton.current) {
+
+      const inputComment = handleCommentFocus.current.value.trim();
       let newId = Date.now();;
 
       if (inputComment !== "") {
@@ -86,11 +113,12 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
         if (isConnected) {
           socket.emit('sendComment', newComment, roomCode)
           console.log({ newComment }, { roomCode });
-          e.target.value = ""
+          handleCommentFocus.current.value = ""
           setreplyTarget("")
         } else {
           console.log(`socket尚未連線`);
         }
+
       }
     }
   }
@@ -177,6 +205,7 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
         .then(data => {
           console.log(`新增 ${data} 點數`);
           setClickedIds(prevIds => [...prevIds, id]);
+          myPoints()
         })
     }
   }
@@ -266,6 +295,7 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
           <button
             className="absolute top-1 right-2 font-medium text-black"
             onClick={handleCommentSubmit}
+            ref={SendButton}
           >{onPhone ? "送出" : ""}</button>
         </div>
 
@@ -288,7 +318,7 @@ export default function ChatRoom({ isConnected, comment, setComment }) {
                 className={styles.iconstore}
                 onClick={handleShowMemberlist}
               ></RiUserFill>
-              </>
+            </>
               : ""}
           </div>
         </div>

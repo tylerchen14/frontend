@@ -9,13 +9,17 @@ export default function App({ Component, pageProps }) {
   return (
     <StreamInfoContextProvider>
       <ViewToggleContextProvider>
-        <PointContextProvider>
-          <GiftContextProvider>
+        <GiftContextProvider>
+
+          <PointContextProvider>
+
             <EffectContextProvider>
               <Component {...pageProps} />
             </EffectContextProvider>
-          </GiftContextProvider>
-        </PointContextProvider>
+
+          </PointContextProvider>
+
+        </GiftContextProvider>
       </ViewToggleContextProvider>
     </StreamInfoContextProvider>
   )

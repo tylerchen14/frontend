@@ -1,8 +1,11 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { API_SERVER } from '@/components/config/api-path';
+import { createContext, useContext, useEffect, useState } from 'react';
+import useToggle from './use-toggle-show';
 
 const GiftContext = createContext(null)
 
 export function GiftContextProvider({ children }) {
+  const { streamId, roomCode } = useToggle()
   const giftList = [
     {
       name: "鑿子",
@@ -60,15 +63,28 @@ export function GiftContextProvider({ children }) {
       grayscale: false,
     },
   ]
-  const [totalBonus, setTotalBonus] = useState(0)
+  const [totalBonus, setTotalBonus] = useState(null)
   const [gList, setGList] = useState(giftList)
   const [giftRain, setGiftRain] = useState([])
   const [isAnimating, setIsAnimating] = useState(false);
 
   // 禮物列表
 
-  const handleGiveGift = (price, chance, name, pic) => {
-    let gift = Number(price)
+  const fetchTotalBonus = async () => {
+    try {
+      const response = await fetch(`${API_SERVER}/totalBonus/Noah`);
+      const data = await response.json();
+      setTotalBonus(data);
+    } catch (error) {
+      console.error('抓不到 totalBonus:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTotalBonus();
+  }, []);
+
+  const handleGiveGift = async (price, chance, name, pic) => {
 
     const updateList = gList.map(item => {
       if (item.name === name) {
@@ -83,16 +99,45 @@ export function GiftContextProvider({ children }) {
     setGList(updateList)
 
     if (chance > 0) {
-      setTotalBonus(prevTotal => prevTotal + gift)
+      await fetch(`${API_SERVER}/give-streamer-point`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: "Noah",
+          gift: name,
+          point: price
+        })
+      })
+        .then(r => r.json())
+        .then(data => {
+          console.log(`新增 ${data} 禮物`);
+          fetchTotalBonus()
+        })
     } else {
       return
     }
 
-    // if (isAnimating) {
-    //   return;
-    // }
-    // setIsAnimating(true);
-    // setGiftRain([]);
+    await fetch(`${API_SERVER}/use-point`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId: 1,
+        points: price,
+        source: name,
+      }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        console.log(`減少 ${data} 點數`)
+        fetchTotalBonus()
+      }
+      )
+
+
     if (isAnimating) {
       return;
     } else {
@@ -106,11 +151,10 @@ export function GiftContextProvider({ children }) {
       setGiftRain(createGiftArray)
     }
 
-    // setTimeout(() => setGiftRain(createGiftArray), 0);
   }
 
   return (
-    <GiftContext.Provider value={{ totalBonus, gList, giftRain, handleGiveGift, setGiftRain, isAnimating, setIsAnimating }}>
+    <GiftContext.Provider value={{ totalBonus, gList, giftRain, handleGiveGift, setGiftRain, isAnimating, setIsAnimating, fetchTotalBonus }}>
       {children}
     </GiftContext.Provider>
   )

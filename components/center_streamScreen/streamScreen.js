@@ -16,12 +16,10 @@ const StreamContent = dynamic(() => import('@/components/stream/stream'), {
 export default function StreamScreen({ isConnected }) {
   const { gList, giftRain, handleGiveGift, isAnimating, setIsAnimating } = useGift()
   const { onPhone, showChatroom, showSidebar, showGift, handleChatroom, handleSidebarHide } = useToggle()
-  const { eList, handleGiveEffect, showEffect } = useE()
 
   return (
     <div className={styles['mainframe']}>
 
-      {/* <div className={`absolute w-full h-full ${isAnimating ? "z-50" : "z-0"}`}> */}
       <AnimatePresence>
         {giftRain.map(g => {
           return <GiftShow
@@ -32,7 +30,6 @@ export default function StreamScreen({ isConnected }) {
           ></GiftShow>
         })}
       </AnimatePresence>
-      {/* </div> */}
 
       {/* 左邊收起按鈕 */}
       <div className={`${styles['arrow-box-left']} ${onPhone ? "hidden" : ""}`}
@@ -65,75 +62,41 @@ export default function StreamScreen({ isConnected }) {
       {onPhone ? <Title></Title> : ""}
 
       {/* 禮物框 */}
-      {showEffect ?
-        <>
-          <div className={`${styles['gift-bar']} ${!onPhone ? "" : showGift ? "" : styles.hide} w-5/12 gap-14 max-md:top-[460px]`}>
-            {eList.map((c, i) => {
-              return (
-                <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer " key={i}>
-                  <motion.div
-                    whileHover={{
-                      rotate: -10,
-                      scale: 1.3
-                    }}
-                  >
-                    <Image
-                      width={44}
-                      height={44}
-                      src={c.src}
-                      className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
-                      alt={c.name}
-                      onClick={() => { handleGiveEffect(c.price, c.name) }}
-                    ></Image>
-                  </motion.div>
-                  <div className="text-sm">{c.name}</div>
-                  <div className="flex gap-0.5 items-center">
-                    <RiCoinFill style={{ color: "#fff400" }} className='mt-1 h-4'></RiCoinFill>
-                    <div className='mr-2 text-sm'>{c.price}</div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </>
-        :
-        <>
-          <div className={`${styles['gift-bar']} ${showGift ? "" : "max-md:opacity-0"} gap-8 max-md:top-[445px]`}>
-            {gList.map((c, i) => {
-              return (
-                <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer" key={i}>
-                  <motion.div
-                    whileHover={{
-                      rotate: -10,
-                      scale: 1.3
-                    }}
-                  >
-                    <Image
-                      width={44}
-                      height={44}
-                      src={c.src}
-                      className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
-                      alt={c.name}
-                      onClick={() => handleGiveGift(c.price, c.chance, c.name, c.src)}
-                    ></Image>
-                  </motion.div>
 
-                  <div className='text-sm'>{c.name}({c.chance})</div>
-                  <div className="flex items-center">
-                    <RiCoinFill
-                      style={{ color: "#fff400" }}
-                      className='mt-1 h-4'></RiCoinFill>
+      <div className={`${styles['gift-bar']} ${showGift ? "" : styles.hidden} gap-8 max-md:top-[445px]`}>
+        {gList.map((c, i) => {
+          return (
+            <div className="flex flex-col items-center justify-center gap-0.5 cursor-pointer" key={i}>
+              <motion.div
+                whileHover={{
+                  rotate: -10,
+                  scale: 1.3
+                }}
+              >
+                <Image
+                  width={44}
+                  height={44}
+                  src={c.src}
+                  className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
+                  alt={c.name}
+                  onClick={() => handleGiveGift(c.price, c.chance, c.name, c.src)}
+                ></Image>
+              </motion.div>
 
-                    <div
-                      className='mr-2 text-sm'>{c.price}</div>
-                  </div>
-                </div>
-              )
-            })}
+              <div className='text-sm'>{c.name}({c.chance})</div>
+              <div className="flex items-center">
+                <RiCoinFill
+                  style={{ color: "#fff400" }}
+                  className='mt-1 h-4'></RiCoinFill>
 
-          </div>
+                <div
+                  className='mr-2 text-sm'>{c.price}</div>
+              </div>
+            </div>
+          )
+        })}
 
-        </>}
+      </div>
 
     </div>
 

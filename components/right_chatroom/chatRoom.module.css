@@ -100,7 +100,7 @@
   }
 
   .chat {
-    outline: 1px solid white;
+    /* outline: 1px solid white; */
     margin-top: 0;
     height: 250px;
     overflow-y: auto;

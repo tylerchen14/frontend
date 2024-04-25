@@ -8,10 +8,11 @@ import useToggle from '@/contexts/use-toggle-show';
 export default function Stream() {
   const router = useRouter()
   const [streamRoom, setStreamRoom] = useState('')
-  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, streamId, setStreamId, role, setRole, viewerId, setViewerId, roomCode, setRoomCode } = useToggle()
+  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, streamId, setStreamId, role, setRole, viewerId, setViewerId, roomCode, setRoomCode, isStreaming, setIsStreaming } = useToggle()
   const localVidsRef = useRef(null)
   const remoteVidsRef = useRef(null)
   const peer = useRef()
+
 
   useEffect(() => {
     if (router.isReady) {
@@ -24,6 +25,13 @@ export default function Stream() {
       createPeer(newRole)
     }
   }, [router.isReady, router.query.streamerPath]);
+
+  useEffect(() => {
+    return () => {
+      stopStreaming()
+      console.log({ isStreaming });
+    };
+  }, []);
 
   const createPeer = (role) => {
     if (!peer.current) {
@@ -59,6 +67,8 @@ export default function Stream() {
 
       if (role === 'isStreamer') {
         socket.emit('joinRoom', roomCode)
+        setIsStreaming(true)
+        console.log({ isStreaming });
         console.log({ roomCode });
         navigator.mediaDevices.getUserMedia({
           video: {
@@ -75,9 +85,18 @@ export default function Stream() {
               call.answer(stream)
             })
           })
+
       }
     }
   }
+
+  const stopStreaming = () => {
+    if (peer.current) {
+      peer.current.destroy();
+      peer.current = null;
+    }
+    setIsStreaming(false);
+  };
 
   const callStreamer = async () => {
 
@@ -110,6 +129,7 @@ export default function Stream() {
       .then(stream => {
         localVidsRef.current.srcObject = stream;
         localVidsRef.current.play();
+
         const call = peer.current.call(streamId, stream)
 
         if (!call) {
@@ -126,18 +146,11 @@ export default function Stream() {
 
   return (
     <>
-      {role === "isViewer" &&
-        <div>
-          <div className='absolute right-10 top-9 flex gap-3 mb-3 items-center cursor-pointer hover:scale-125 transition-all duration-300' onClick={callStreamer}>
-            <img
-              src="/images/face-id.png"
-              className="bg-white rounded-full p-1 h-[34px]" />
-          </div>
-          <div className='absolute right-10 top-9 flex gap-3 mb-3 items-center cursor-pointer hover:scale-125 transition-all duration-300' onClick={callStreamer}>
-            <img
-              src="/images/face-id.png"
-              className="bg-white rounded-full p-1 h-[34px]" />
-          </div>
+      {role === "isViewer" && !isStreaming &&
+        <div className='absolute right-10 top-9 flex gap-3 mb-3 items-center cursor-pointer hover:scale-125 transition-all duration-300 max-md:z-50 max-md:left-3 max-md:top-3' onClick={callStreamer}>
+          <img
+            src="/images/face-id.png"
+            className="bg-white rounded-full p-1 h-[34px]" />
         </div>
       }
       <div

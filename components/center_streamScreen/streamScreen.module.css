@@ -76,6 +76,10 @@
     justify-content: start;
   }
 
+  .hidden{
+    display: none;
+  }
+
   .gift-bar {
     overflow-x: auto;
     gap: 20px;
