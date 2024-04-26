@@ -1,10 +1,9 @@
+import useToggle from '@/contexts/use-toggle-show';
 import { socket } from '@/src/socket';
 import { useRouter } from "next/router";
 import { Peer } from "peerjs";
 import { useEffect, useRef, useState } from 'react';
 import { API_SERVER } from '../config/api-path';
-import useToggle from '@/contexts/use-toggle-show';
-import useE from '@/contexts/use-effect';
 
 export default function Stream() {
   const router = useRouter()
@@ -18,9 +17,9 @@ export default function Stream() {
     if (router.isReady) {
       const room = router.query.streamerPath;
       setStreamRoom(room)
-      console.log({ room });
+      // console.log({ room });
       const newRole = room ? "isStreamer" : "isViewer";
-      console.log({ newRole });
+      // console.log({ newRole });
       setRole(newRole);
       createPeer(newRole)
     }
@@ -51,13 +50,12 @@ export default function Stream() {
       })
 
       socket.on('viewerGo', (id) => {
-        setViewerId(id
-        )
+        setViewerId(id)
       })
 
       if (role === 'isStreamer') {
         socket.emit('joinRoom', roomCode)
-        console.log({ roomCode });
+        // console.log({ roomCode });
         navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: "user"
@@ -72,15 +70,26 @@ export default function Stream() {
             peer.current.on('call', (call) => {
               call.answer(stream)
             })
-
-            setIsStreaming(true)
-            console.log({ isStreaming });
+            // FIXME:有問題
+            // setIsStreaming(true)
           })
+
       }
     }
   }
 
+  // useEffect(() => {
+  //   socket.emit('streamGo', isStreaming)
+  //   console.log(`剛開播：${isStreaming}`);
+  // }, [isStreaming])
+
+  // useEffect(() => {
+  //   socket.on('streamGo', setting => setIsStreaming(setting))
+  // }, [])
+
+
   const calling = async () => {
+    try{
     const r = await fetch(`${API_SERVER}/watch-stream/tyler`, {
       method: "GET",
       headers: {
@@ -92,6 +101,10 @@ export default function Stream() {
     setRoomCode(data[0].stream_code)
     setStreamId(roomCode)
   }
+  catch(err) {
+    console.log("沒有抓到資料");
+  }
+  }
 
   useEffect(() => {
     calling()
@@ -100,11 +113,11 @@ export default function Stream() {
   const callStreamer = async () => {
 
     if (!peer.current || !streamId || !viewerId) {
-      console.error(`其中有空數值，Peer: ${peer.current}, streamId: ${streamId}`);
+      console.error(`有空值 -> Peer: ${peer.current}, streamId: ${streamId}`);
       return
     } else {
       socket.emit('joinRoom', roomCode)
-      socket.emit('userEnter', { name: "tyler" }, roomCode, viewerId)
+      socket.emit('userEnter', { name: "tyler", viewerId: viewerId }, roomCode)
     }
 
     navigator.mediaDevices.getUserMedia({
@@ -129,6 +142,7 @@ export default function Stream() {
           remoteVidsRef.current.play();
         })
       })
+    // setIsStreaming(false)
   }
 
   return (
@@ -151,7 +165,8 @@ export default function Stream() {
               className={`aspect-video object-contain max-h-[75vh]`}
               controls
               autoPlay
-              playsInline>
+              playsInline
+            >
             </video>
           </>
           :
@@ -174,8 +189,6 @@ export default function Stream() {
               playsInline>
             </video>
           </>}
-
-
       </div>
     </>
   )

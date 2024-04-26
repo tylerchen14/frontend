@@ -20,14 +20,12 @@ export default function StreamScreen({ isConnected }) {
     <div className={styles['mainframe']}>
 
       <AnimatePresence>
-        {giftRain.map(g => {
-          return <GiftShow
-            key={g.id + '-' + new Date().getTime()}
-            giftrain={g.gift}
-            size={g.size}
-            setIsAnimating={setIsAnimating}
-          ></GiftShow>
-        })}
+        {giftRain.map(g => <GiftShow
+          key={g.id}
+          giftrain={g.gift}
+          size={g.size}
+        ></GiftShow>
+        )}
       </AnimatePresence>
 
       {/* 左邊收起按鈕 */}
@@ -78,11 +76,11 @@ export default function StreamScreen({ isConnected }) {
                   src={c.src}
                   className={`${styles['circle']} ${c.grayscale ? "grayscale" : ""}`}
                   alt={c.name}
-                  onClick={() => handleGiveGift(c.price, c.chance, c.name, c.src)}
+                  onClick={() => handleGiveGift(c.price, c.name, c.src)}
                 ></Image>
               </motion.div>
 
-              <div className='text-sm'>{c.name}({c.chance})</div>
+              <div className='text-sm'>{c.name}</div>
               <div className="flex items-center">
                 <RiCoinFill
                   style={{ color: "#fff400" }}

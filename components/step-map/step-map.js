@@ -1,10 +1,10 @@
+import useStreamInfo from "@/contexts/use-streamInfo";
+import useToggle from "@/contexts/use-toggle-show";
 import { RiArrowDownSLine, RiArrowUpSLine } from "@remixicon/react";
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 import styles from './step-map.module.css';
-import Swal from 'sweetalert2'
-import useStreamInfo from "@/contexts/use-streamInfo";
-import useToggle from "@/contexts/use-toggle-show";
 
 export default function StepMap() {
   const { onPhone, showSidebar, showMember, handleShowMemberlist } = useToggle()

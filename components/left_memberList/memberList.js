@@ -11,8 +11,8 @@ export default function MemberList({ totalBonus }) {
   const [members, setMembers] = useState([])
 
   useEffect(() => {
-    socket.on('userGo', name => {
-      setMembers(prev => [...prev, name]);
+    socket.on('userGo', viewerIdList => {
+      setMembers([viewerIdList]);
     })
 
     return () => {
@@ -20,16 +20,7 @@ export default function MemberList({ totalBonus }) {
     };
   }, [])
 
-  useEffect(() => {
-    socket.emit('addMember', roomCode, members)
-  }, [members])
-
-  // FIXME:有問題
-  // useEffect(() => {
-  //   socket.on('memberAdd', memberList => {
-  //     setMembers(memberList)
-  //   })
-  // }, [])
+  // console.log({members});
 
   return (
     <div className={`${styles['sidebar']} ${showSidebar ? '' : styles.hidden_left} ${!onPhone ? "" : showMember ? styles.show_up : styles.hidden_down}`}>
@@ -47,8 +38,8 @@ export default function MemberList({ totalBonus }) {
         {/* 成員排序內容 */}
         <div className={styles['member-list']}>
           {members.map((m, i) => (
-            <Member key={i}
-              name={m}></Member>
+            <Member key={m.viewerId}
+              name={m.name}></Member>
           ))}
 
         </div>
