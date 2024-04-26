@@ -63,6 +63,12 @@ export function GiftContextProvider({ children }) {
   const [giftRain, setGiftRain] = useState([])
   const [isAnimating, setIsAnimating] = useState(false);
 
+  useEffect(() => {
+    socket.on('showGift', giftRain => {
+      setGiftRain(giftRain)
+    })
+  }, [])
+
   // 禮物列表
   const fetchTotalBonus = async () => {
     try {
@@ -149,6 +155,8 @@ export function GiftContextProvider({ children }) {
         size: `${parseInt(Math.random() * (70 - 10) + 50)}`
       }))
       setGiftRain(createGiftArray)
+
+      socket.emit('showGift', roomCode, createGiftArray)
 
     } else {
       Swal.fire({
