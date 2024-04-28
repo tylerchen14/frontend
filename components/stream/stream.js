@@ -8,7 +8,7 @@ import { API_SERVER } from '../config/api-path';
 export default function Stream() {
   const router = useRouter()
   const [streamRoom, setStreamRoom] = useState('')
-  const { streamId, setStreamId, role, setRole, viewerId, setViewerId, roomCode, setRoomCode, isStreaming, setIsStreaming } = useToggle()
+  const { streamId, setStreamId, role, setRole, viewerId, setViewerId, roomCode, setRoomCode, isStreaming, setIsStreaming, vSocketId, setVSocketId } = useToggle()
   const localVidsRef = useRef(null)
   const remoteVidsRef = useRef(null)
   const peer = useRef()
@@ -49,8 +49,9 @@ export default function Stream() {
         })
       })
 
-      socket.on('viewerGo', (id) => {
+      socket.on('viewerGo', (id, sId) => {
         setViewerId(id)
+        setVSocketId(sId)
       })
 
       if (role === 'isStreamer') {
@@ -89,21 +90,21 @@ export default function Stream() {
 
 
   const calling = async () => {
-    try{
-    const r = await fetch(`${API_SERVER}/watch-stream/tyler`, {
-      method: "GET",
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
+    try {
+      const r = await fetch(`${API_SERVER}/watch-stream/tyler`, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
 
-    const data = await r.json()
-    setRoomCode(data[0].stream_code)
-    setStreamId(roomCode)
-  }
-  catch(err) {
-    console.log("沒有抓到資料");
-  }
+      const data = await r.json()
+      setRoomCode(data[0].stream_code)
+      setStreamId(roomCode)
+    }
+    catch (err) {
+      console.log("沒有抓到資料");
+    }
   }
 
   useEffect(() => {
@@ -117,7 +118,7 @@ export default function Stream() {
       return
     } else {
       socket.emit('joinRoom', roomCode)
-      socket.emit('userEnter', { name: "tyler", viewerId: viewerId }, roomCode)
+      socket.emit('userEnter', { name: "tyler", viewerId: viewerId, socketId: vSocketId }, roomCode)
     }
 
     navigator.mediaDevices.getUserMedia({

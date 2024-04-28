@@ -12,15 +12,13 @@ export default function MemberList({ totalBonus }) {
 
   useEffect(() => {
     socket.on('userGo', viewerIdList => {
-      setMembers([viewerIdList]);
+      setMembers(viewerIdList);
     })
 
     return () => {
       socket.off('userGo');
     };
   }, [])
-
-  // console.log({members});
 
   return (
     <div className={`${styles['sidebar']} ${showSidebar ? '' : styles.hidden_left} ${!onPhone ? "" : showMember ? styles.show_up : styles.hidden_down}`}>
@@ -38,7 +36,9 @@ export default function MemberList({ totalBonus }) {
         {/* 成員排序內容 */}
         <div className={styles['member-list']}>
           {members.map((m, i) => (
-            <Member key={m.viewerId}
+            <Member
+              key={m.viewerId}
+              index={m.viewerId}
               name={m.name}></Member>
           ))}
 
