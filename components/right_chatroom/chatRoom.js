@@ -2,14 +2,14 @@ import useE from "@/contexts/use-effect";
 import usePoint from "@/contexts/use-points";
 import useToggle from "@/contexts/use-toggle-show";
 import { socket } from "@/src/socket";
-import { RiCloseFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiUser3Fill, RiUserFill } from "@remixicon/react";
+import { RiCloseFill, RiGift2Line, RiMoneyDollarCircleFill, RiPushpinFill, RiReplyFill, RiUser3Fill, RiUserFill, RiArrowLeftFill } from "@remixicon/react";
 import Image from 'next/image';
 import { useEffect, useRef, useState } from "react";
 import { API_SERVER } from "../config/api-path";
 import styles from './chatRoom.module.css';
 
-export default function ChatRoom({ isConnected, comment }) {
-  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, role, roomCode } = useToggle()
+export default function ChatRoom({ isConnected, comment, setComment }) {
+  const { onPhone, showChatroom, handleShowGift, handleShowMemberlist, role, roomCode, joinRoom, setJoinRoom } = useToggle()
   const { handleEffectTab } = useE()
   const [replyTarget, setreplyTarget] = useState("")
   const [replyTargetName, setreplyTargetName] = useState("")
@@ -24,6 +24,7 @@ export default function ChatRoom({ isConnected, comment }) {
   })
   const handleCommentFocus = useRef()
   const SendButton = useRef()
+  const [clickedIds, setClickedIds] = useState([])
 
   useEffect(() => {
 
@@ -36,7 +37,6 @@ export default function ChatRoom({ isConnected, comment }) {
       socket.off('updateLiveNum', handlePeopleOnline)
       socket.disconnect();
     }
-
   }, [])
 
   let isComposing = false;
@@ -169,26 +169,35 @@ export default function ChatRoom({ isConnected, comment }) {
   })
 
   // 點數功能
-  const [clickedIds, setClickedIds] = useState([])
 
   useEffect(() => {
-    let newId = Date.now();;
-    const getPoints = setInterval(() => {
-      const newComment = {
-        id: newId,
-        name: "系統",
-        profile: "/images/treasure.png",
-        comment: "點頭貼，領點數！",
-      }
-      socket.emit('sendComment', newComment, roomCode)
-    }, 100000);
 
-    return () => clearInterval(getPoints)
-  }, [])
+    if (joinRoom) {
+      const getPoints = setInterval(() => {
+        let newId = Date.now();;
+        const newComment = {
+          id: newId,
+          name: "系統",
+          profile: "/images/treasure.png",
+          comment: "點頭貼，領點數！",
+        }
+        console.log({ newId });
+
+        setComment(prev => [...prev, newComment])
+
+        if (newComment.name !== "系統") {
+          socket.emit('sendComment', newComment, roomCode)
+        }
+
+      }, 60000);
+
+      return () => clearInterval(getPoints)
+    }
+
+  }, [roomCode, joinRoom])
 
   const handleGetPoints = (profile, id) => {
     if (profile == "/images/treasure.png" && !clickedIds.includes(id)) {
-
       let userId = 1
       fetch(`${API_SERVER}/add-point`, {
         method: 'POST',
@@ -236,17 +245,18 @@ export default function ChatRoom({ isConnected, comment }) {
                   <div className='flex w-6/12 gap-2 items-center justify-start'>
                     <Image width={27} height={27} alt='大頭貼' src={c.profile}
                       onClick={() => handleGetPoints(c.profile, c.id)}
-                      className='bg-white rounded-full p-1' />
+                      className={`bg-white rounded-full p-1 ${c.name === "系統" ? "cursor-pointer" : ""}`} />
                     <div className='shrink-0'>{c.name}</div>
                   </div>
-                  {role === "isStreamer" &&
+                  {role === "isStreamer" && c.name !== "系統" &&
                     <div className='flex w-6/12 justify-end'>
                       <RiPushpinFill className={styles.icon_reply} onClick={() => { handlePin(c.id, c.profile, c.name, c.comment) }} />
                     </div>}
-                  <RiReplyFill
-                    className={styles.icon_reply}
-                    onClick={() => { handleClickIcon(c.comment, c.name) }}
-                  />
+                  {c.name !== "系統" &&
+                    <RiReplyFill
+                      className={styles.icon_reply}
+                      onClick={() => { handleClickIcon(c.comment, c.name) }}
+                    />}
                 </div>
 
                 <div className='w-[200px] ml-9 break-words'>{c.comment}</div>

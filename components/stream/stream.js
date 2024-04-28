@@ -8,7 +8,7 @@ import { API_SERVER } from '../config/api-path';
 export default function Stream() {
   const router = useRouter()
   const [streamRoom, setStreamRoom] = useState('')
-  const { streamId, setStreamId, role, setRole, viewerId, setViewerId, roomCode, setRoomCode, isStreaming, setIsStreaming, vSocketId, setVSocketId } = useToggle()
+  const { streamId, setStreamId, role, setRole, viewerId, setViewerId, roomCode, setRoomCode, isStreaming, setIsStreaming, vSocketId, setVSocketId, joinRoom, setJoinRoom } = useToggle()
   const localVidsRef = useRef(null)
   const remoteVidsRef = useRef(null)
   const peer = useRef()
@@ -71,23 +71,11 @@ export default function Stream() {
             peer.current.on('call', (call) => {
               call.answer(stream)
             })
-            // FIXME:有問題
-            // setIsStreaming(true)
           })
 
       }
     }
   }
-
-  // useEffect(() => {
-  //   socket.emit('streamGo', isStreaming)
-  //   console.log(`剛開播：${isStreaming}`);
-  // }, [isStreaming])
-
-  // useEffect(() => {
-  //   socket.on('streamGo', setting => setIsStreaming(setting))
-  // }, [])
-
 
   const calling = async () => {
     try {
@@ -119,6 +107,7 @@ export default function Stream() {
     } else {
       socket.emit('joinRoom', roomCode)
       socket.emit('userEnter', { name: "tyler", viewerId: viewerId, socketId: vSocketId }, roomCode)
+      setJoinRoom(true)
     }
 
     navigator.mediaDevices.getUserMedia({
@@ -143,7 +132,6 @@ export default function Stream() {
           remoteVidsRef.current.play();
         })
       })
-    // setIsStreaming(false)
   }
 
   return (
