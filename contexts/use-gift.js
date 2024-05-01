@@ -8,7 +8,7 @@ import useToggle from './use-toggle-show';
 const GiftContext = createContext(null)
 
 export function GiftContextProvider({ children }) {
-  const { streamId, roomCode } = useToggle()
+  const { streamId, roomCode, joinRoom, setJoinRoom, role } = useToggle()
   const { pts, myPoints } = usePoint()
   const giftList = [
     {
@@ -86,12 +86,18 @@ export function GiftContextProvider({ children }) {
     }
   };
 
+  // FIXME: 觀眾進入房間沒法收到總打賞
   useEffect(() => {
-    fetchTotalBonus();
-    socket.on('updateBonus', data => {
-      setTotalBonus(data)
-    })
-  }, []);
+    if (joinRoom || role === "isStreamer") {
+      fetchTotalBonus();
+      socket.on('updateBonus', data => {
+        setTotalBonus(data)
+      })
+    } else {
+      setTotalBonus(0)
+    }
+  }, [roomCode, joinRoom]);
+  console.log({joinRoom});
 
   const handleGiveGift = async (price, name, pic) => {
 

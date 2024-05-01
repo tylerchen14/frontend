@@ -1,7 +1,8 @@
 import useStreamInfo from "@/contexts/use-streamInfo";
 import { RiArrowDownSLine, RiArrowRightSLine } from "@remixicon/react";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './title.module.css';
+import { socket } from "@/src/socket";
 
 export default function Title() {
 
@@ -13,6 +14,17 @@ export default function Title() {
   const handleShowDetail = () => {
     setShowDetail(!showDetail)
   }
+
+  useEffect(() => {
+    socket.on('sendTitle', (title) => {
+      setStreamTitle(title)
+    })
+
+    socket.on('sendDescript', (description) => {
+      setStreamDesciption(description)
+    })
+
+  }, [])
 
   return (
     <div className={styles['title-container']}>

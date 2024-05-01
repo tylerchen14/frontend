@@ -7,7 +7,7 @@ import styles from './memberList.module.css';
 
 export default function MemberList({ totalBonus }) {
 
-  const { onPhone, showSidebar, showMember, handleShowMemberlist, roomCode } = useToggle()
+  const { onPhone, showSidebar, showMember, handleShowMemberlist, roomCode, joinRoom, setJoinRoom } = useToggle()
   const [members, setMembers] = useState([])
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function MemberList({ totalBonus }) {
       />}
 
       <div className={`${styles['sidebar-container']}`}>
-        <div className={`text-left mt-5 mb-1 max-md:mt-0 `}>直播總打賞: {totalBonus}</div>
+        <div className={`text-left mt-5 mb-1 max-md:mt-0 `}>{joinRoom ? `直播總打賞: 0` : `直播總打賞: ${totalBonus}`}</div>
         <hr className="border-2" />
         <hr className={`${styles['line']} mt-1 border-dotted`} />
 

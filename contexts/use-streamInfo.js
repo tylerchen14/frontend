@@ -1,5 +1,4 @@
 import { createContext, useContext, useState } from 'react'
-
 const StreamInfoContext = createContext(null)
 
 export function StreamInfoContextProvider({ children }) {
